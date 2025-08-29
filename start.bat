@@ -1,0 +1,9 @@
+@echo off
+echo Starting Azure DevOps Project Retriever...
+echo.
+echo Installing dependencies...
+call npm run install-all
+echo.
+echo Starting the application...
+call npm run dev
+pause
