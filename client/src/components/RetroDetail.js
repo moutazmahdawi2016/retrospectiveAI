@@ -524,7 +524,7 @@ function RetroDetail({ retrospectiveId, onBack }) {
                           {item.columnId ? (
                             <div style={{
                               padding: '6px 12px',
-                              background: getColumnColor(item.columnId)
+                              background: getColumnColor(item.columnId),
                               color: 'white',
                               borderRadius: '20px',
                               fontSize: '0.8rem',

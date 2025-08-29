@@ -1,7 +1,7 @@
 {
-  "name": "azure-devops-project-retriever",
+  "name": "retrospective-insight-ai",
   "version": "1.0.0",
-  "description": "Full-stack application to retrieve Azure DevOps projects",
+  "description": "Full-stack application for AI-powered retrospective insights",
   "main": "server/index.js",
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",

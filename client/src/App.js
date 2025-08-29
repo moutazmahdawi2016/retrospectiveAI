@@ -12,8 +12,12 @@ import {
   Crown,
   ExternalLink,
   Info,
-  BarChart3
+  BarChart3,
+  ArrowRight,
+  Plus,
+  Settings
 } from 'lucide-react';
+import LandingPage from './components/LandingPage';
 import RetroBoards from './components/RetroBoards';
 import RetroDetail from './components/RetroDetail';
 import InfoPage from './components/InfoPage';
@@ -26,7 +30,7 @@ function App() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [teams, setTeams] = useState([]);
   const [loadingTeams, setLoadingTeams] = useState(false);
-  const [currentView, setCurrentView] = useState('projects'); // 'projects', 'retroboards', 'retrodetail', 'info', or 'teamcomparison'
+  const [currentView, setCurrentView] = useState('landing'); // 'landing', 'projects', 'retroboards', 'retrodetail', 'info', or 'teamcomparison'
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [selectedRetro, setSelectedRetro] = useState(null);
 
@@ -94,6 +98,10 @@ function App() {
       setSelectedProject(project);
       fetchTeams(project.name);
     }
+  };
+
+  const handleGetStarted = () => {
+    setCurrentView('projects');
   };
 
   const handleTeamClick = (team) => {
@@ -166,6 +174,11 @@ function App() {
   console.log('Loading state:', loading);
   console.log('Error state:', error);
 
+  // If we're viewing landing page, show that component
+  if (currentView === 'landing') {
+    return <LandingPage onGetStarted={handleGetStarted} />;
+  }
+
   // If we're viewing info page, show that component
   if (currentView === 'info') {
     return (
@@ -202,69 +215,147 @@ function App() {
     );
   }
 
-  return (
+    return (
     <div className="App">
       <div className="container">
-        <div className="header">
-          <div className="header-content">
-            <div>
-              <h1>Azure DevOps Project Retriever</h1>
-              <p>Manage and view your Azure DevOps projects and teams from ThiqahDev organization</p>
-            </div>
-            <div className="header-buttons">
-              <button onClick={handleShowTeamComparison} className="comparison-button">
+
+
+
+
+        {/* Page Title */}
+        <div className="page-title-section">
+          <div className="page-title-container">
+            <h1 className="page-title">Azure DevOps Project Retriever</h1>
+            <p className="page-subtitle">Professional project and team management platform</p>
+          </div>
+        </div>
+
+        {/* Key Metrics Section */}
+        <div className="metrics-section">
+          <div className="metrics-grid">
+            <div className="metric-card total-projects">
+              <div className="metric-icon">
                 <BarChart3 size={20} />
-                Team Comparison
-              </button>
-              <button onClick={handleShowInfo} className="info-button">
-                <Info size={20} />
-                About App
-              </button>
+              </div>
+              <div className="metric-content">
+                <div className="metric-number">{stats.totalProjects}</div>
+                <div className="metric-label">TOTAL PROJECTS</div>
+                <div className="metric-description">Comprehensive project plans</div>
+              </div>
+            </div>
+            
+            <div className="metric-card public-projects">
+              <div className="metric-icon">
+                <Eye size={20} />
+              </div>
+              <div className="metric-content">
+                <div className="metric-number">{stats.publicProjects}</div>
+                <div className="metric-label">PUBLIC PROJECTS</div>
+                <div className="metric-description">Currently accessible</div>
+              </div>
+            </div>
+            
+            <div className="metric-card private-projects">
+              <div className="metric-icon">
+                <EyeOff size={20} />
+              </div>
+              <div className="metric-content">
+                <div className="metric-number">{stats.privateProjects}</div>
+                <div className="metric-label">PRIVATE PROJECTS</div>
+                <div className="metric-description">Restricted access</div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Stats Section */}
-        <div className="stats">
-          <div className="stat-card">
-            <div className="stat-number">{stats.totalProjects}</div>
-            <div className="stat-label">Total Projects</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-number">{stats.publicProjects}</div>
-            <div className="stat-label">Public Projects</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-number">{stats.privateProjects}</div>
-            <div className="stat-label">Private Projects</div>
+        {/* Platform Operations and Recent Activity */}
+        <div className="operations-section">
+          <div className="operations-grid">
+            {/* Platform Operations Card */}
+            <div className="operation-card">
+              <div className="operation-header">
+                <h3 className="operation-title">Platform Operations</h3>
+                <p className="operation-subtitle">Essential project management functions</p>
+              </div>
+              <div className="operation-items">
+                <button 
+                  className="operation-item"
+                  onClick={fetchProjects}
+                  disabled={loading}
+                >
+                  <BarChart3 size={20} />
+                  <span>{loading ? 'Syncing...' : 'Sync Projects'}</span>
+                </button>
+                <button 
+                  className="operation-item"
+                  onClick={handleShowTeamComparison}
+                >
+                  <Users size={20} />
+                  <span>Team Comparison</span>
+                </button>
+                <button 
+                  className="operation-item"
+                  onClick={handleShowInfo}
+                >
+                  <Info size={20} />
+                  <span>About App</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Recent Activity Card */}
+            <div className="activity-card">
+              <div className="activity-header">
+                <h3 className="activity-title">Recent Activity</h3>
+                <p className="activity-subtitle">Latest project updates and team activities</p>
+              </div>
+              <div className="activity-items">
+                {projects.slice(0, 3).map((project, index) => (
+                  <div key={project.id} className="activity-item">
+                    <div className="activity-info">
+                      <div className="activity-name">Project {index + 1}</div>
+                      <div className="activity-detail">{project.name}</div>
+                    </div>
+                    <button className="activity-view-btn">
+                      <Eye size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="activity-footer">
+                <button 
+                  onClick={() => setCurrentView('landing')}
+                  className="view-all-btn"
+                >
+                  Back to Home →
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Control Buttons */}
-        <div className="card">
-          <button 
-            className="btn" 
-            onClick={fetchProjects} 
-            disabled={loading}
-          >
-            {loading ? <Loader size={20} /> : <RefreshCw size={20} />}
-            {loading ? 'Loading...' : 'Refresh Projects'}
-          </button>
-        </div>
-
-        {/* Error Display */}
+        {/* Professional Status Messages */}
         {error && (
-          <div className="error">
-            <AlertCircle size={20} />
-            <span style={{ marginLeft: '8px' }}>{error}</span>
+          <div className="status-message error-message">
+            <div className="status-icon">
+              <AlertCircle size={20} />
+            </div>
+            <div className="status-content">
+              <h4 className="status-title">Connection Error</h4>
+              <p className="status-description">{error}</p>
+            </div>
           </div>
         )}
 
-        {/* Loading State */}
         {loading && (
-          <div className="loading">
-            <Loader size={24} />
-            <span style={{ marginLeft: '12px' }}>Fetching projects from Azure DevOps...</span>
+          <div className="status-message loading-message">
+            <div className="status-icon">
+              <Loader size={24} className="spinning" />
+            </div>
+            <div className="status-content">
+              <h4 className="status-title">Syncing with Azure DevOps</h4>
+              <p className="status-description">Retrieving latest project information...</p>
+            </div>
           </div>
         )}
 
@@ -272,202 +363,168 @@ function App() {
 
         {/* Projects Grid */}
         {!loading && projects.length > 0 && (
-          <div className="grid">
-            {projects.map((project) => (
-              <div 
-                key={project.id} 
-                className={`card project-card ${selectedProject?.id === project.id ? 'selected' : ''}`}
-                style={{ cursor: 'pointer', border: '3px solid #28a745' }}
-                onClick={() => handleProjectClick(project)}
-              >
-                                 <div className="project-name" style={{ 
-                   fontSize: '1.3rem', 
-                   fontWeight: 'bold', 
-                   color: '#28a745',
-                   textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
-                   borderBottom: '2px solid #28a745',
-                   paddingBottom: '8px',
-                   marginBottom: '12px'
-                 }}>
-                   🚀 {project.name}
-                 </div>
-                <div className="project-description" style={{ 
-                  fontSize: '1.1rem',
-                  color: '#495057',
-                  backgroundColor: '#f8f9fa',
-                  padding: '10px',
-                  borderRadius: '5px',
-                  border: '1px solid #dee2e6'
-                }}>
-                  {project.description || 'No description available'}
-                </div>
-                
-                <div className="project-meta">
-                  <span className="project-visibility">
-                    {project.visibility === 'public' ? (
-                      <Eye size={14} style={{ marginRight: '4px' }} />
-                    ) : (
-                      <EyeOff size={14} style={{ marginRight: '4px' }} />
-                    )}
-                    {project.visibility}
-                  </span>
-                  <span>
-                    <Calendar size={14} style={{ marginRight: '4px' }} />
-                    {formatDate(project.lastUpdateTime)}
-                  </span>
-                </div>
-
-                {/* Project Details */}
-                {selectedProject?.id === project.id && (
-                  <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #e9ecef' }}>
-                    <h4 style={{ marginBottom: '12px', color: '#2c3e50' }}>Project Details</h4>
-                    <div style={{ marginBottom: '8px' }}>
-                      <strong>ID:</strong> {project.id}
+          <div className="projects-section">
+            <div className="section-header">
+              <h2 className="section-title">Project Management</h2>
+              <p className="section-subtitle">Click on any project to view teams and retrospective boards</p>
+            </div>
+            
+            <div className="projects-grid">
+              {projects.map((project) => (
+                <div 
+                  key={project.id} 
+                  className={`project-card ${selectedProject?.id === project.id ? 'expanded' : ''}`}
+                  onClick={() => handleProjectClick(project)}
+                >
+                  <div className="project-header">
+                    <div className="project-icon">
+                      <BarChart3 size={24} />
                     </div>
-                    <div style={{ marginBottom: '8px' }}>
-                      <strong>State:</strong> {project.state}
-                    </div>
-                    <div style={{ marginBottom: '8px' }}>
-                      <strong>Revision:</strong> {project.revision}
-                    </div>
-                    <div style={{ marginBottom: '16px' }}>
-                      <strong>URL:</strong> 
-                      <a 
-                        href={project.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        style={{ color: '#667eea', marginLeft: '8px' }}
-                      >
-                        View in Azure DevOps
-                      </a>
-                    </div>
-
-                    {/* Teams Section */}
-                    <div style={{ marginTop: '20px' }}>
-                      <h5 style={{ marginBottom: '16px', color: '#2c3e50' }}>
-                        <Users size={18} style={{ marginRight: '8px' }} />
-                        Teams ({teams.length})
-                      </h5>
-                      
-                      {loadingTeams ? (
-                        <div className="loading">
-                          <Loader size={16} />
-                          <span style={{ marginLeft: '8px' }}>Loading teams...</span>
-                        </div>
-                      ) : teams.length > 0 ? (
-                        <div style={{ display: 'grid', gap: '16px' }}>
-                          {teams.map((team, index) => (
-                            <div 
-                              key={team.id} 
-                              style={{ 
-                                padding: '16px', 
-                                background: team.isDefaultTeam ? '#e8f5e8' : '#f8f9fa', 
-                                borderRadius: '12px',
-                                border: team.isDefaultTeam ? '2px solid #28a745' : '1px solid #e9ecef',
-                                position: 'relative',
-                                cursor: 'pointer'
-                              }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleTeamClick(team);
-                              }}
-                            >
-                              {team.isDefaultTeam && (
-                                <div style={{ 
-                                  position: 'absolute', 
-                                  top: '-8px', 
-                                  right: '12px',
-                                  background: '#28a745',
-                                  color: 'white',
-                                  padding: '4px 8px',
-                                  borderRadius: '12px',
-                                  fontSize: '0.7rem',
-                                  fontWeight: '600'
-                                }}>
-                                  <Crown size={12} style={{ marginRight: '4px' }} />
-                                  Default Team
-                                </div>
-                              )}
-                              <div style={{ fontWeight: '700', marginBottom: '8px', color: '#2c3e50', fontSize: '1.1rem' }}>
-                                {team.name}
-                              </div>
-                              <div style={{ fontSize: '0.9rem', color: '#6c757d', marginBottom: '8px', lineHeight: '1.4' }}>
-                                {team.description || 'No description available'}
-                              </div>
-                              <div style={{ fontSize: '0.8rem', color: '#495057', fontFamily: 'monospace' }}>
-                                {team.principalName}
-                              </div>
-                              <div style={{ fontSize: '0.8rem', color: '#6c757d', marginTop: '8px' }}>
-                                <strong>Scope:</strong> {team.scope} | <strong>Domain:</strong> {team.domain}
-                              </div>
-                              
-                              {/* Click to view retro boards */}
-                              <div style={{ 
-                                marginTop: '12px', 
-                                padding: '8px', 
-                                background: '#667eea', 
-                                color: 'white', 
-                                borderRadius: '6px',
-                                fontSize: '0.8rem',
-                                textAlign: 'center',
-                                fontWeight: '600'
-                              }}>
-                                <ExternalLink size={14} style={{ marginRight: '6px' }} />
-                                Click to view Retro Boards
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div style={{ color: '#6c757d', fontStyle: 'italic', textAlign: 'center', padding: '20px' }}>
-                          <Users size={32} style={{ opacity: 0.5, marginBottom: '8px' }} />
-                          <p>No teams found for this project</p>
-                        </div>
-                      )}
+                    <div className="project-title-section">
+                      <h3 className="project-name">{project.name}</h3>
+                      <div className="project-badges">
+                        <span className={`visibility-badge ${project.visibility}`}>
+                          {project.visibility === 'public' ? (
+                            <Eye size={14} />
+                          ) : (
+                            <EyeOff size={14} />
+                          )}
+                          {project.visibility}
+                        </span>
+                        <span className="update-badge">
+                          <Calendar size={14} />
+                          {formatDate(project.lastUpdateTime)}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+                  
+                  <div className="project-description">
+                    {project.description || 'No description available'}
+                  </div>
 
-        {/* No Projects State */}
-        {!loading && projects.length === 0 && !error && (
-          <div className="card" style={{ background: '#fff3cd', border: '2px solid #ffc107' }}>
-            <div style={{ textAlign: 'center', color: '#856404' }}>
-              <AlertCircle size={48} style={{ opacity: 0.7, marginBottom: '16px' }} />
-              <h3 style={{ marginBottom: '10px' }}>⚠️ No Projects Found</h3>
-              <p>No projects were returned from the Azure DevOps API.</p>
-              <p style={{ marginTop: '10px', fontSize: '0.9rem' }}>
-                This might be due to API permissions or the organization not having any projects.
-              </p>
-              <button 
-                onClick={fetchProjects} 
-                className="btn" 
-                style={{ marginTop: '15px' }}
-              >
-                <RefreshCw size={16} />
-                Try Again
-              </button>
+                  {/* Project Details */}
+                  {selectedProject?.id === project.id && (
+                    <div className="project-details">
+                      <div className="details-header">
+                        <h4 className="details-title">Project Details</h4>
+                      </div>
+                      <div className="details-grid">
+                        <div className="detail-item">
+                          <span className="detail-label">ID</span>
+                          <span className="detail-value">{project.id}</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="detail-label">State</span>
+                          <span className="detail-value">{project.state}</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="detail-label">Revision</span>
+                          <span className="detail-value">{project.revision}</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="detail-label">URL</span>
+                          <a 
+                            href={project.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="project-link"
+                          >
+                            <ExternalLink size={14} />
+                            View in Azure DevOps
+                          </a>
+                        </div>
+                      </div>
+
+                      {/* Teams Section */}
+                      <div className="teams-section">
+                        <div className="teams-header">
+                          <h5 className="teams-title">
+                            <Users size={18} />
+                            Teams ({teams.length})
+                          </h5>
+                        </div>
+                        
+                        {loadingTeams ? (
+                          <div className="teams-loading">
+                            <Loader size={16} />
+                            <span>Loading teams...</span>
+                          </div>
+                        ) : teams.length > 0 ? (
+                          <div className="teams-grid">
+                            {teams.map((team, index) => (
+                              <div 
+                                key={team.id} 
+                                className={`team-card ${team.isDefaultTeam ? 'default-team' : ''}`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleTeamClick(team);
+                                }}
+                              >
+                                {team.isDefaultTeam && (
+                                  <div className="default-team-badge">
+                                    <Crown size={12} />
+                                    Default Team
+                                  </div>
+                                )}
+                                <div className="team-header">
+                                  <h6 className="team-name">{team.name}</h6>
+                                  <p className="team-description">
+                                    {team.description || 'No description available'}
+                                  </p>
+                                </div>
+                                <div className="team-meta">
+                                  <span className="team-principal">{team.principalName}</span>
+                                  <div className="team-scope">
+                                    <span className="scope-item">
+                                      <strong>Scope:</strong> {team.scope}
+                                    </span>
+                                    <span className="scope-item">
+                                      <strong>Domain:</strong> {team.domain}
+                                    </span>
+                                  </div>
+                                </div>
+                                
+                                <div className="team-action">
+                                  <span>Click to view Retro Boards</span>
+                                  <ExternalLink size={14} />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="no-teams">
+                            <Users size={32} />
+                            <p>No teams found for this project</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         )}
 
-        {/* Error State */}
-        {error && (
-          <div className="card" style={{ background: '#f8d7da', border: '2px solid #dc3545' }}>
-            <div style={{ textAlign: 'center', color: '#721c24' }}>
-              <AlertCircle size={48} style={{ opacity: 0.7, marginBottom: '16px' }} />
-              <h3 style={{ marginBottom: '10px' }}>❌ Error Loading Projects</h3>
-              <p>{error}</p>
+        {/* Professional Empty State */}
+        {!loading && projects.length === 0 && !error && (
+          <div className="empty-state">
+            <div className="empty-state-content">
+              <div className="empty-state-icon">
+                <AlertCircle size={64} />
+              </div>
+              <h3 className="empty-state-title">No Projects Found</h3>
+              <p className="empty-state-description">
+                No projects were returned from the Azure DevOps API. This might be due to API permissions 
+                or the organization not having any projects.
+              </p>
               <button 
                 onClick={fetchProjects} 
-                className="btn" 
-                style={{ marginTop: '15px' }}
+                className="empty-state-btn"
               >
                 <RefreshCw size={16} />
-                Retry
+                Try Again
               </button>
             </div>
           </div>

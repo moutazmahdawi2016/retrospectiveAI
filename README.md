@@ -1,6 +1,6 @@
-# Azure DevOps Project Retriever
+# Retrospective Insight with AI
 
-A full-stack application to retrieve and manage Azure DevOps projects, teams, and retro boards from the ThiqahDev organization.
+A full-stack application for AI-powered retrospective insights, helping teams analyze and improve their processes through intelligent feedback classification and analytics.
 
 ## ✨ Features
 
