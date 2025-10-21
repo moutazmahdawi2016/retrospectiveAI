@@ -457,11 +457,27 @@ app.use((err, req, res, next) => {
 });
 
 // 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    error: 'Route not found'
-  });
+// Serve static files from React build
+const path = require('path');
+const clientBuildPath = path.join(__dirname, '../client/build');
+
+// Serve static files
+app.use(express.static(clientBuildPath));
+
+// API routes should be before the catch-all
+// All API routes are already defined above
+
+// Catch-all handler for React Router - must be last
+app.get('*', (req, res) => {
+  // If it's an API route that wasn't found, return JSON error
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({
+      success: false,
+      error: 'Route not found'
+    });
+  }
+  // Otherwise serve the React app
+  res.sendFile(path.join(clientBuildPath, 'index.html'));
 });
 
 const PORT = config.server.port;
@@ -472,4 +488,5 @@ app.listen(PORT, () => {
   console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
   console.log(`📋 Projects endpoint: http://localhost:${PORT}/api/projects`);
   console.log(`👥 Teams endpoint: http://localhost:${PORT}/api/projects/:projectName/teams`);
+  console.log(`🌐 Frontend: Serving React app from ${clientBuildPath}`);
 });
