@@ -1,0 +1,33 @@
+services:
+  # Backend API Service
+  - type: web
+    name: retrospective-ai-backend
+    env: node
+    buildCommand: cd server && npm install
+    startCommand: cd server && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: AZURE_DEVOPS_PAT
+        sync: false
+      - key: AZURE_DEVOPS_ORG
+        value: ThiqahDev
+      - key: AZURE_DEVOPS_API_VERSION
+        value: 7.1
+      - key: AZURE_DEVOPS_BASE_URL
+        value: https://dev.azure.com
+      - key: PORT
+        value: 8000
+
+  # Frontend Static Site (Optional - if you want to deploy frontend separately)
+  # - type: static
+  #   name: retrospective-ai-frontend
+  #   buildCommand: cd client && npm install && npm run build
+  #   staticPublishPath: ./client/build
+  #   envVars:
+  #     - key: REACT_APP_API_URL
+  #       fromService:
+  #         type: web
+  #         name: retrospective-ai-backend
+  #         envVarKey: RENDER_EXTERNAL_URL
+
