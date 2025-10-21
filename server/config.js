@@ -1,5 +1,6 @@
-require('dotenv').config({ path: '.env.local' });
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env.local') });
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 // Debug environment variables
 console.log('🔍 Environment Variables Debug:');
