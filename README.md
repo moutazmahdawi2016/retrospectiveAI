@@ -52,7 +52,10 @@ A full-stack application for AI-powered retrospective insights, helping teams an
    ```bash
    npm run install-all
    ```
-3. **Start the application**:
+3. **Configure API Keys** (see [SETUP.md](SETUP.md) for detailed instructions):
+   - Azure DevOps Personal Access Token (PAT)
+   - DeepSeek API Key for AI classification
+4. **Start the application**:
    ```bash
    npm run dev
    ```
@@ -61,6 +64,24 @@ A full-stack application for AI-powered retrospective insights, helping teams an
    ```bash
    start-app.bat
    ```
+
+### 🔐 Secure API Key Setup
+
+For secure API key configuration, use one of these methods:
+
+**Option 1: Interactive Setup (Recommended)**
+```powershell
+.\create-env.ps1
+```
+
+**Option 2: Manual Setup**
+```powershell
+.\setup-env.ps1
+```
+Then edit the script to replace placeholder values with your actual API keys.
+
+**Option 3: Environment File**
+Create a `.env.local` file with your API keys (this file is ignored by git).
 
 ## 🌐 Access URLs
 

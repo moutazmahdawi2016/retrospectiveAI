@@ -1,15 +1,25 @@
+require('dotenv').config({ path: '.env.local' });
+require('dotenv').config();
+
+// Debug environment variables
+console.log('🔍 Environment Variables Debug:');
+console.log('AZURE_DEVOPS_PAT length:', process.env.AZURE_DEVOPS_PAT ? process.env.AZURE_DEVOPS_PAT.length : 'undefined');
+console.log('AZURE_DEVOPS_ORG:', process.env.AZURE_DEVOPS_ORG);
+console.log('AZURE_DEVOPS_API_VERSION:', process.env.AZURE_DEVOPS_API_VERSION);
+console.log('AZURE_DEVOPS_BASE_URL:', process.env.AZURE_DEVOPS_BASE_URL);
+
 module.exports = {
   azureDevOps: {
-    pat: '9a7bWjjRjvq9WtkyQDcdoVtfwMYmn6PYwveqVu4WNTXcQ6pHAc08JQQJ99BHACAAAAAB0QnJAAASAZDO2q28',
-    organization: 'ThiqahDev',
-    apiVersion: '7.1',
-    baseUrl: 'https://dev.azure.com'
+    pat: process.env.AZURE_DEVOPS_PAT,
+    organization: process.env.AZURE_DEVOPS_ORG || 'ThiqahDev',
+    apiVersion: process.env.AZURE_DEVOPS_API_VERSION || '7.1',
+    baseUrl: process.env.AZURE_DEVOPS_BASE_URL || 'https://dev.azure.com'
   },
   deepseek: {
-    apiKey: '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',
-    baseUrl: 'https://api.deepseek.com'
+    apiKey: process.env.DEEPSEEK_API_KEY || '',
+    baseUrl: process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com'
   },
   server: {
-    port: process.env.PORT || 5000
+    port: process.env.PORT || 8000
   }
 };

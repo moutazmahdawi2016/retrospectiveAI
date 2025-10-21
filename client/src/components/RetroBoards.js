@@ -21,8 +21,347 @@ import {
   BarChart3,
   Target,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  AlertTriangle
 } from 'lucide-react';
+
+// Monthly Timeline Component
+function MonthlyTimeline({ retroBoards }) {
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [showMissingPeriods, setShowMissingPeriods] = useState(true);
+
+  // Get all years from retro boards
+  const years = [...new Set(retroBoards.map(board => {
+    const date = new Date(board.createdDate || board.modifiedDate || 0);
+    return date.getFullYear();
+  }))].sort((a, b) => b - a);
+
+  // Generate timeline data for selected year
+  const generateTimelineData = (year) => {
+    const timeline = [];
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+
+    for (let month = 0; month < 12; month++) {
+      const monthName = months[month];
+      const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
+      
+      // Find retro boards for this month
+      const monthBoards = retroBoards.filter(board => {
+        const boardDate = new Date(board.createdDate || board.modifiedDate || 0);
+        return boardDate.getFullYear() === year && boardDate.getMonth() === month;
+      });
+
+      timeline.push({
+        month: month + 1,
+        monthName,
+        monthKey,
+        hasRetro: monthBoards.length > 0,
+        retroCount: monthBoards.length,
+        boards: monthBoards,
+        isCurrentMonth: new Date().getFullYear() === year && new Date().getMonth() === month,
+        isPastMonth: new Date() > new Date(year, month + 1, 0)
+      });
+    }
+
+    return timeline;
+  };
+
+  const timelineData = generateTimelineData(selectedYear);
+  const totalRetros = timelineData.filter(month => month.hasRetro).length;
+  const missingMonths = timelineData.filter(month => !month.hasRetro && month.isPastMonth).length;
+  const completionRate = Math.round((totalRetros / 12) * 100);
+
+  return (
+    <div className="monthly-timeline">
+      {/* Year Selector and Summary */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        marginBottom: '20px',
+        flexWrap: 'wrap',
+        gap: '15px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <label style={{ fontWeight: '600', color: '#2c3e50' }}>Select Year:</label>
+          <select 
+            value={selectedYear} 
+            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+            style={{
+              padding: '8px 12px',
+              border: '1px solid #ddd',
+              borderRadius: '6px',
+              fontSize: '14px',
+              background: 'white'
+            }}
+          >
+            {years.map(year => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </select>
+        </div>
+
+        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#28a745' }}>
+              {totalRetros}
+            </div>
+            <div style={{ fontSize: '0.8rem', color: '#6c757d' }}>Months with Retros</div>
+          </div>
+          
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#dc3545' }}>
+              {missingMonths}
+            </div>
+            <div style={{ fontSize: '0.8rem', color: '#6c757d' }}>Missing Months</div>
+          </div>
+          
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#007bff' }}>
+              {completionRate}%
+            </div>
+            <div style={{ fontSize: '0.8rem', color: '#6c757d' }}>Completion Rate</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Timeline Grid */}
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+        gap: '15px',
+        marginBottom: '20px'
+      }}>
+        {timelineData.map((month) => (
+          <div key={month.monthKey} style={{
+            padding: '15px',
+            borderRadius: '10px',
+            border: '2px solid',
+            background: month.hasRetro ? '#f8fff9' : '#fff8f8',
+            borderColor: month.hasRetro ? '#28a745' : '#dc3545',
+            position: 'relative',
+            transition: 'all 0.3s ease'
+          }}>
+            {/* Month Header */}
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              marginBottom: '10px'
+            }}>
+              <div style={{ 
+                fontWeight: '600', 
+                fontSize: '1.1rem',
+                color: month.hasRetro ? '#28a745' : '#dc3545'
+              }}>
+                {month.monthName}
+              </div>
+              
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '5px'
+              }}>
+                {month.hasRetro ? (
+                  <CheckCircle size={16} color="#28a745" />
+                ) : month.isPastMonth ? (
+                  <AlertTriangle size={16} color="#dc3545" />
+                ) : (
+                  <Clock size={16} color="#6c757d" />
+                )}
+                
+                {month.isCurrentMonth && (
+                  <span style={{
+                    padding: '2px 6px',
+                    background: '#007bff',
+                    color: 'white',
+                    borderRadius: '10px',
+                    fontSize: '0.7rem',
+                    fontWeight: '600'
+                  }}>
+                    Current
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Status and Details */}
+            {month.hasRetro ? (
+              <div>
+                <div style={{ 
+                  color: '#28a745', 
+                  fontWeight: '600',
+                  marginBottom: '8px'
+                }}>
+                  ✅ Retrospective Completed
+                </div>
+                
+                <div style={{ 
+                  fontSize: '0.9rem', 
+                  color: '#495057',
+                  marginBottom: '8px'
+                }}>
+                  {month.retroCount} board{month.retroCount > 1 ? 's' : ''} created
+                </div>
+                
+                {/* Show board titles */}
+                {month.boards.slice(0, 2).map((board, index) => (
+                  <div key={board.id || index} style={{
+                    fontSize: '0.8rem',
+                    color: '#6c757d',
+                    padding: '4px 8px',
+                    background: '#f8f9fa',
+                    borderRadius: '4px',
+                    marginBottom: '4px',
+                    borderLeft: '3px solid #28a745'
+                  }}>
+                    {board.title || board.name || 'Untitled Board'}
+                  </div>
+                ))}
+                
+                {month.boards.length > 2 && (
+                  <div style={{
+                    fontSize: '0.8rem',
+                    color: '#6c757d',
+                    fontStyle: 'italic'
+                  }}>
+                    +{month.boards.length - 2} more board{month.boards.length - 2 > 1 ? 's' : ''}
+                  </div>
+                )}
+              </div>
+            ) : month.isPastMonth ? (
+              <div>
+                <div style={{ 
+                  color: '#dc3545', 
+                  fontWeight: '600',
+                  marginBottom: '8px'
+                }}>
+                  ❌ No Retrospective
+                </div>
+                
+                <div style={{ 
+                  fontSize: '0.9rem', 
+                  color: '#6c757d',
+                  marginBottom: '8px'
+                }}>
+                  Missing retrospective for this month
+                </div>
+                
+                <div style={{
+                  fontSize: '0.8rem',
+                  color: '#dc3545',
+                  padding: '6px 10px',
+                  background: '#fff5f5',
+                  borderRadius: '6px',
+                  border: '1px solid #fed7d7'
+                }}>
+                  <strong>Recommendation:</strong> Schedule a retrospective to maintain team improvement momentum
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div style={{ 
+                  color: '#6c757d', 
+                  fontWeight: '600',
+                  marginBottom: '8px'
+                }}>
+                  ⏳ Future Month
+                </div>
+                
+                <div style={{ 
+                  fontSize: '0.9rem', 
+                  color: '#6c757d'
+                }}>
+                  Plan retrospectives for continuous improvement
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Missing Periods Summary */}
+      {showMissingPeriods && missingMonths > 0 && (
+        <div style={{
+          padding: '20px',
+          background: '#fff5f5',
+          borderRadius: '10px',
+          border: '1px solid #fed7d7',
+          marginTop: '20px'
+        }}>
+          <h4 style={{ 
+            margin: '0 0 15px 0', 
+            color: '#dc3545',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <AlertTriangle size={18} />
+            Missing Retrospective Periods
+          </h4>
+          
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+            gap: '15px',
+            marginBottom: '15px'
+          }}>
+            {timelineData
+              .filter(month => !month.hasRetro && month.isPastMonth)
+              .map(month => (
+                <div key={month.monthKey} style={{
+                  padding: '10px',
+                  background: 'white',
+                  borderRadius: '6px',
+                  border: '1px solid #fed7d7',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontWeight: '600', color: '#dc3545' }}>
+                    {month.monthName}
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: '#6c757d' }}>
+                    {selectedYear}
+                  </div>
+                </div>
+              ))}
+          </div>
+          
+          <div style={{ 
+            fontSize: '0.9rem', 
+            color: '#6c757d',
+            lineHeight: '1.5'
+          }}>
+            <strong>Impact:</strong> Missing retrospectives can lead to unresolved team issues, 
+            missed improvement opportunities, and decreased team performance over time.
+          </div>
+        </div>
+      )}
+
+      {/* Toggle Missing Periods */}
+      <div style={{ textAlign: 'center', marginTop: '20px' }}>
+        <button
+          onClick={() => setShowMissingPeriods(!showMissingPeriods)}
+          style={{
+            padding: '8px 16px',
+            background: showMissingPeriods ? '#dc3545' : '#28a745',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '0.9rem',
+            fontWeight: '600',
+            transition: 'all 0.3s ease'
+          }}
+        >
+          {showMissingPeriods ? 'Hide Missing Periods' : 'Show Missing Periods'}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function RetroBoards({ teamId, teamName, onBack, onRetroClick }) {
   const [retroBoards, setRetroBoards] = useState([]);
@@ -32,6 +371,7 @@ function RetroBoards({ teamId, teamName, onBack, onRetroClick }) {
   const [progressData, setProgressData] = useState(null);
   const [analyzingProgress, setAnalyzingProgress] = useState(false);
   const [isDetailedTableCollapsed, setIsDetailedTableCollapsed] = useState(true);
+  const [selectedContext, setSelectedContext] = useState(null);
 
   const fetchRetroBoards = async () => {
     setLoading(true);
@@ -1411,6 +1751,1174 @@ function RetroBoards({ teamId, teamName, onBack, onRetroClick }) {
                 })()}
               </div>
             </div>
+
+             {/* Repeated Negative Points Analysis */}
+             <div className="repeated-negative-analysis">
+               <h4>🚨 Repeated Negative Points Analysis</h4>
+               <p style={{ color: '#6c757d', marginBottom: '20px' }}>
+                 Identify recurring negative points across retrospectives using context-based matching to address systemic issues
+               </p>
+               
+               {/* Analysis Method Explanation */}
+               <div style={{
+                 padding: '15px',
+                 background: '#f8f9fa',
+                 borderRadius: '8px',
+                 border: '1px solid #e9ecef',
+                 marginBottom: '20px',
+                 fontSize: '0.9rem'
+               }}>
+                 <div style={{ fontWeight: '600', color: '#495057', marginBottom: '8px' }}>
+                   🔍 Context-Based Analysis Method:
+                 </div>
+                 <div style={{ color: '#6c757d', lineHeight: '1.5' }}>
+                   This analysis groups negative points by context similarity, not just exact text matches. 
+                   Points are considered "repeated" if they share similar contexts like communication issues, 
+                   technical problems, timeline delays, or process challenges - even if worded differently.
+                 </div>
+               </div>
+               
+                               {(() => {
+                  // Analyze repeated negative points across all boards with context-based matching
+                  const negativePointsMap = new Map();
+                  const boardOccurrences = new Map();
+                  
+                  // Function to extract context keywords from text
+                  const extractContextKeywords = (text) => {
+                    const lowerText = text.toLowerCase();
+                    
+                    // Define context categories and their keywords
+                    const contextCategories = {
+                      communication: ['communication', 'communication', 'meeting', 'email', 'message', 'discussion', 'talk', 'speak', 'conversation', 'chat', 'call', 'presentation', 'report', 'update', 'feedback', 'clarification'],
+                      process: ['process', 'workflow', 'procedure', 'method', 'approach', 'system', 'pipeline', 'routine', 'practice', 'methodology', 'framework', 'standard', 'protocol'],
+                      technical: ['technical', 'code', 'bug', 'error', 'system', 'technology', 'tool', 'software', 'hardware', 'infrastructure', 'database', 'server', 'network', 'performance', 'quality', 'testing'],
+                      timeline: ['timeline', 'deadline', 'schedule', 'time', 'delay', 'late', 'overdue', 'planning', 'estimation', 'duration', 'milestone', 'delivery', 'sprint'],
+                      collaboration: ['collaboration', 'teamwork', 'coordination', 'cooperation', 'partnership', 'support', 'help', 'assistance', 'collaborate', 'work together', 'team', 'group'],
+                      quality: ['quality', 'standard', 'excellence', 'accuracy', 'precision', 'reliability', 'consistency', 'thoroughness', 'attention', 'detail', 'review', 'check'],
+                      resource: ['resource', 'budget', 'cost', 'money', 'funding', 'equipment', 'tool', 'material', 'supply', 'inventory', 'stock', 'capacity', 'manpower'],
+                      knowledge: ['knowledge', 'skill', 'expertise', 'experience', 'training', 'education', 'learning', 'understanding', 'awareness', 'competency', 'proficiency'],
+                      environment: ['environment', 'atmosphere', 'culture', 'workplace', 'office', 'setting', 'condition', 'climate', 'mood', 'vibe', 'feeling', 'tension', 'stress'],
+                      management: ['management', 'leadership', 'supervision', 'direction', 'guidance', 'oversight', 'control', 'administration', 'coordination', 'planning', 'strategy']
+                    };
+                    
+                    // Find matching context categories
+                    const matchedContexts = [];
+                    for (const [category, keywords] of Object.entries(contextCategories)) {
+                      const matchCount = keywords.filter(keyword => lowerText.includes(keyword)).length;
+                      if (matchCount > 0) {
+                        matchedContexts.push({ category, matchCount, keywords: keywords.filter(keyword => lowerText.includes(keyword)) });
+                      }
+                    }
+                    
+                    // Sort by match count and return top contexts
+                    return matchedContexts
+                      .sort((a, b) => b.matchCount - a.matchCount)
+                      .slice(0, 3)
+                      .map(ctx => ctx.category);
+                  };
+                  
+                  // Function to calculate similarity between two texts
+                  const calculateSimilarity = (text1, text2) => {
+                    const words1 = text1.toLowerCase().split(/\s+/).filter(word => word.length > 2);
+                    const words2 = text2.toLowerCase().split(/\s+/).filter(word => word.length > 2);
+                    
+                    if (words1.length === 0 || words2.length === 0) return 0;
+                    
+                    const commonWords = words1.filter(word => words2.includes(word));
+                    const totalWords = new Set([...words1, ...words2]);
+                    
+                    return commonWords.length / totalWords.size;
+                  };
+                  
+                  // Function to find similar existing points
+                  const findSimilarPoint = (newPoint, existingPoints) => {
+                    const newContexts = extractContextKeywords(newPoint.title);
+                    const newText = newPoint.title.toLowerCase();
+                    
+                    for (const [key, existingPoint] of existingPoints) {
+                      const existingContexts = extractContextKeywords(existingPoint.title);
+                      const existingText = existingPoint.title.toLowerCase();
+                      
+                      // Check if contexts match
+                      const contextMatch = newContexts.some(ctx => existingContexts.includes(ctx));
+                      
+                      // Check text similarity
+                      const textSimilarity = calculateSimilarity(newText, existingText);
+                      
+                      // Consider similar if either contexts match OR text similarity is high
+                      if (contextMatch && textSimilarity > 0.3) {
+                        return key;
+                      }
+                      
+                      // Also check for exact keyword matches
+                      const commonKeywords = ['issue', 'problem', 'difficult', 'challenge', 'block', 'delay', 'error', 'bug', 'conflict', 'misunderstanding', 'lack', 'missing', 'poor', 'bad', 'slow', 'broken'];
+                      const newKeywords = commonKeywords.filter(keyword => newText.includes(keyword));
+                      const existingKeywords = commonKeywords.filter(keyword => existingText.includes(keyword));
+                      const keywordOverlap = newKeywords.filter(keyword => existingKeywords.includes(keyword));
+                      
+                      if (keywordOverlap.length > 0 && textSimilarity > 0.2) {
+                        return key;
+                      }
+                    }
+                    
+                    return null;
+                  };
+                  
+                  progressData.classificationData.forEach(retro => {
+                    retro.classification.forEach(item => {
+                      if (item.classification === 'BAD') {
+                        // Try to find similar existing point
+                        const similarKey = findSimilarPoint(item, negativePointsMap);
+                        const key = similarKey || item.title.toLowerCase().trim();
+                        
+                        if (!negativePointsMap.has(key)) {
+                          negativePointsMap.set(key, {
+                            title: item.title,
+                            count: 0,
+                            boards: [],
+                            totalOccurrences: 0,
+                            similarPoints: [],
+                            context: extractContextKeywords(item.title),
+                            timeline: [], // Add timeline tracking
+                            lastSeen: null,
+                            firstSeen: null
+                          });
+                        }
+                        
+                        const point = negativePointsMap.get(key);
+                        point.count++;
+                        point.totalOccurrences++;
+                        
+                        // Add timeline information - use board date
+                        const boardDate = new Date(retro.date || Date.now());
+                        point.timeline.push({
+                          boardName: retro.boardName,
+                          date: boardDate,
+                          month: boardDate.getFullYear() + '-' + String(boardDate.getMonth() + 1).padStart(2, '0')
+                        });
+                        
+                        // Track first and last seen dates
+                        if (!point.firstSeen || boardDate < point.firstSeen) {
+                          point.firstSeen = boardDate;
+                        }
+                        if (!point.lastSeen || boardDate > point.lastSeen) {
+                          point.lastSeen = boardDate;
+                        }
+                        
+                        // Add this point to similar points if it's different from the main title
+                        if (item.title.toLowerCase().trim() !== key) {
+                          point.similarPoints.push(item.title);
+                        }
+                        
+                        // Track which boards this point appears in
+                        if (!point.boards.includes(retro.boardName)) {
+                          point.boards.push(retro.boardName);
+                        }
+                        
+                        // Track board occurrences
+                        if (!boardOccurrences.has(key)) {
+                          boardOccurrences.set(key, new Set());
+                        }
+                        boardOccurrences.get(key).add(retro.boardName);
+                      }
+                    });
+                  });
+                 
+                 // Convert to array and sort by frequency
+                 const repeatedPoints = Array.from(negativePointsMap.values())
+                   .filter(point => point.count > 1) // Only show points that appear multiple times
+                   .sort((a, b) => b.count - a.count);
+                 
+                 if (repeatedPoints.length === 0) {
+                   return (
+                     <div style={{ 
+                       textAlign: 'center', 
+                       padding: '40px', 
+                       background: '#f8fff9', 
+                       borderRadius: '10px',
+                       border: '1px solid #d4edda'
+                     }}>
+                       <CheckCircle size={48} color="#28a745" style={{ marginBottom: '16px' }} />
+                       <h5 style={{ color: '#28a745', marginBottom: '10px' }}>No Recurring Negative Points</h5>
+                       <p style={{ color: '#6c757d' }}>
+                         Great news! No negative points are appearing repeatedly across retrospectives.
+                       </p>
+                     </div>
+                   );
+                 }
+                 
+                 return (
+                   <div className="repeated-points-container">
+                     {/* Summary Statistics */}
+                     <div className="repeated-stats" style={{ 
+                       display: 'grid', 
+                       gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+                       gap: '15px',
+                       marginBottom: '20px'
+                     }}>
+                       <div style={{ 
+                         padding: '15px', 
+                         background: '#fff5f5', 
+                         borderRadius: '8px',
+                         border: '1px solid #fed7d7',
+                         textAlign: 'center'
+                       }}>
+                         <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#dc3545' }}>
+                           {repeatedPoints.length}
+                         </div>
+                         <div style={{ fontSize: '0.8rem', color: '#6c757d' }}>
+                           Recurring Issues
+                         </div>
+                       </div>
+                       
+                       <div style={{ 
+                         padding: '15px', 
+                         background: '#fff5f5', 
+                         borderRadius: '8px',
+                         border: '1px solid #fed7d7',
+                         textAlign: 'center'
+                       }}>
+                         <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#dc3545' }}>
+                           {repeatedPoints.reduce((sum, point) => sum + point.totalOccurrences, 0)}
+                         </div>
+                         <div style={{ fontSize: '0.8rem', color: '#6c757d' }}>
+                           Total Occurrences
+                         </div>
+                       </div>
+                       
+                       <div style={{ 
+                         padding: '15px', 
+                         background: '#fff5f5', 
+                         borderRadius: '8px',
+                         border: '1px solid #fed7d7',
+                         textAlign: 'center'
+                       }}>
+                         <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#dc3545' }}>
+                           {Math.round(repeatedPoints.reduce((sum, point) => sum + point.totalOccurrences, 0) / repeatedPoints.length)}
+                         </div>
+                         <div style={{ fontSize: '0.8rem', color: '#6c757d' }}>
+                           Avg Occurrences/Issue
+                         </div>
+                       </div>
+                       
+                       <div style={{ 
+                         padding: '15px', 
+                         background: '#fff5f5', 
+                         borderRadius: '8px',
+                         border: '1px solid #fed7d7',
+                         textAlign: 'center'
+                       }}>
+                         <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#dc3545' }}>
+                           {Math.round((repeatedPoints.length / progressData.totalBoards) * 100)}%
+                         </div>
+                         <div style={{ fontSize: '0.8rem', color: '#6c757d' }}>
+                           Boards with Recurring Issues
+                         </div>
+                       </div>
+                     </div>
+                     
+                     {/* Top Recurring Issues */}
+                     <div className="top-recurring-issues">
+                       <h5 style={{ marginBottom: '15px', color: '#dc3545' }}>
+                         🔴 Top Recurring Negative Points
+                       </h5>
+                       
+                       <div style={{ 
+                         display: 'grid', 
+                         gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+                         gap: '15px',
+                         marginBottom: '20px'
+                       }}>
+                         {repeatedPoints.slice(0, 6).map((point, index) => (
+                           <div key={index} style={{
+                             padding: '15px',
+                             background: '#fff5f5',
+                             borderRadius: '8px',
+                             border: '1px solid #fed7d7',
+                             position: 'relative'
+                           }}>
+                             <div style={{ 
+                               position: 'absolute', 
+                               top: '10px', 
+                               right: '10px',
+                               background: '#dc3545',
+                               color: 'white',
+                               borderRadius: '50%',
+                               width: '24px',
+                               height: '24px',
+                               display: 'flex',
+                               alignItems: 'center',
+                               justifyContent: 'center',
+                               fontSize: '0.7rem',
+                               fontWeight: '600'
+                             }}>
+                               {point.count}
+                             </div>
+                             
+                                                           <div style={{ 
+                                fontWeight: '600', 
+                                color: '#dc3545',
+                                marginBottom: '8px',
+                                fontSize: '0.9rem'
+                              }}>
+                                {point.title}
+                              </div>
+                              
+                              {/* Context Categories */}
+                              {point.context && point.context.length > 0 && (
+                                <div style={{ 
+                                  fontSize: '0.7rem', 
+                                  color: '#6c757d',
+                                  marginBottom: '8px'
+                                }}>
+                                  <strong>Context:</strong> {point.context.join(', ')}
+                                </div>
+                              )}
+                              
+                              {/* Similar Points */}
+                              {point.similarPoints && point.similarPoints.length > 0 && (
+                                <div style={{ 
+                                  fontSize: '0.7rem', 
+                                  color: '#6c757d',
+                                  marginBottom: '8px'
+                                }}>
+                                  <strong>Similar Issues ({point.similarPoints.length}):</strong>
+                                  <div style={{ marginTop: '4px' }}>
+                                    {point.similarPoints.slice(0, 2).map((similarPoint, idx) => (
+                                      <div key={idx} style={{
+                                        padding: '2px 6px',
+                                        background: '#f8f9fa',
+                                        borderRadius: '3px',
+                                        marginBottom: '2px',
+                                        fontSize: '0.65rem',
+                                        borderLeft: '2px solid #dc3545'
+                                      }}>
+                                        {similarPoint.length > 30 ? similarPoint.substring(0, 30) + '...' : similarPoint}
+                                      </div>
+                                    ))}
+                                    {point.similarPoints.length > 2 && (
+                                      <div style={{ fontSize: '0.65rem', color: '#6c757d', fontStyle: 'italic' }}>
+                                        +{point.similarPoints.length - 2} more similar issues
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                             
+                             <div style={{ 
+                               fontSize: '0.8rem', 
+                               color: '#6c757d',
+                               marginBottom: '8px'
+                             }}>
+                               <strong>Total Occurrences:</strong> {point.totalOccurrences}
+                             </div>
+                             
+                             <div style={{ 
+                               fontSize: '0.8rem', 
+                               color: '#6c757d',
+                               marginBottom: '8px'
+                             }}>
+                               <strong>Appears in {point.boards.length} board{point.boards.length > 1 ? 's' : ''}:</strong>
+                             </div>
+                             
+                             <div style={{ 
+                               display: 'flex', 
+                               flexDirection: 'column', 
+                               gap: '3px'
+                             }}>
+                               {point.boards.map((boardName, boardIndex) => (
+                                 <div key={boardIndex} style={{
+                                   padding: '3px 6px',
+                                   background: '#f8f9fa',
+                                   borderRadius: '3px',
+                                   fontSize: '0.7rem',
+                                   color: '#495057',
+                                   border: '1px solid #e9ecef',
+                                   display: 'flex',
+                                   alignItems: 'center',
+                                   gap: '4px'
+                                 }}>
+                                   <span style={{
+                                     width: '6px',
+                                     height: '6px',
+                                     background: '#dc3545',
+                                     borderRadius: '50%',
+                                     flexShrink: 0
+                                   }}></span>
+                                   <span style={{ 
+                                     fontWeight: '500',
+                                     wordBreak: 'break-word'
+                                   }}>
+                                     {boardName}
+                                   </span>
+                                 </div>
+                               ))}
+                             </div>
+                             
+                             {/* Timeline Information */}
+                             {point.timeline && point.timeline.length > 0 && (
+                               <div style={{ 
+                                 marginTop: '10px',
+                                 padding: '8px',
+                                 background: '#fff3cd',
+                                 borderRadius: '6px',
+                                 border: '1px solid #ffeaa7'
+                               }}>
+                                 <div style={{ 
+                                   fontSize: '0.75rem', 
+                                   fontWeight: '600',
+                                   color: '#856404',
+                                   marginBottom: '6px'
+                                 }}>
+                                   📅 Timeline Analysis
+                                 </div>
+                                 
+                                 {/* First and Last Seen */}
+                                 <div style={{ 
+                                   fontSize: '0.7rem', 
+                                   color: '#856404',
+                                   marginBottom: '6px'
+                                 }}>
+                                   <strong>First seen:</strong> {point.firstSeen ? point.firstSeen.toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : 'Unknown'}
+                                   <br />
+                                   <strong>Last seen:</strong> {point.lastSeen ? point.lastSeen.toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : 'Unknown'}
+                                 </div>
+                                 
+                                 {/* Monthly Timeline */}
+                                 <div style={{ 
+                                   fontSize: '0.65rem', 
+                                   color: '#856404'
+                                 }}>
+                                   <strong>Appeared in months:</strong>
+                                   <div style={{ 
+                                     display: 'flex', 
+                                     flexWrap: 'wrap', 
+                                     gap: '3px',
+                                     marginTop: '4px'
+                                   }}>
+                                     {Array.from(new Set(point.timeline.map(t => t.month)))
+                                       .sort()
+                                       .map((month, idx) => {
+                                         const monthDate = new Date(month + '-01');
+                                         const isRecent = monthDate >= new Date(new Date().setMonth(new Date().getMonth() - 3));
+                                         return (
+                                           <span key={idx} style={{
+                                             padding: '2px 6px',
+                                             background: isRecent ? '#dc3545' : '#6c757d',
+                                             color: 'white',
+                                             borderRadius: '12px',
+                                             fontSize: '0.6rem',
+                                             fontWeight: '500'
+                                           }}>
+                                             {monthDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
+                                             {isRecent && ' (Recent)'}
+                                           </span>
+                                         );
+                                       })}
+                                   </div>
+                                 </div>
+                                 
+                                 {/* Recent Activity Indicator */}
+                                 {point.lastSeen && (new Date() - point.lastSeen) < (30 * 24 * 60 * 60 * 1000) && (
+                                   <div style={{ 
+                                     fontSize: '0.65rem', 
+                                     color: '#dc3545',
+                                     fontWeight: '600',
+                                     marginTop: '4px',
+                                     display: 'flex',
+                                     alignItems: 'center',
+                                     gap: '4px'
+                                   }}>
+                                     <span style={{ fontSize: '0.8rem' }}>⚠️</span>
+                                     Still active in last 30 days
+                                   </div>
+                                 )}
+                               </div>
+                             )}
+                           </div>
+                         ))}
+                       </div>
+                     </div>
+                     
+                     {/* Detailed Analysis Table */}
+                     <div className="detailed-analysis-table">
+                       <h5 style={{ marginBottom: '15px', color: '#495057' }}>
+                         📊 Detailed Recurring Issues Analysis
+                       </h5>
+                       
+                       <div style={{ 
+                         overflowX: 'auto',
+                         background: 'white',
+                         borderRadius: '8px',
+                         border: '1px solid #dee2e6'
+                       }}>
+                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                           <thead>
+                             <tr style={{ background: '#f8f9fa' }}>
+                               <th style={{ 
+                                 padding: '12px', 
+                                 textAlign: 'left', 
+                                 borderBottom: '1px solid #dee2e6',
+                                 fontWeight: '600',
+                                 color: '#495057'
+                               }}>
+                                 Negative Point
+                               </th>
+                               <th style={{ 
+                                 padding: '12px', 
+                                 textAlign: 'center', 
+                                 borderBottom: '1px solid #dee2e6',
+                                 fontWeight: '600',
+                                 color: '#495057'
+                               }}>
+                                 Total Occurrences
+                               </th>
+                               <th style={{ 
+                                 padding: '12px', 
+                                 textAlign: 'center', 
+                                 borderBottom: '1px solid #dee2e6',
+                                 fontWeight: '600',
+                                 color: '#495057'
+                               }}>
+                                 Boards Affected
+                               </th>
+                               <th style={{ 
+                                 padding: '12px', 
+                                 textAlign: 'center', 
+                                 borderBottom: '1px solid #dee2e6',
+                                 fontWeight: '600',
+                                 color: '#495057'
+                               }}>
+                                 Frequency Score
+                               </th>
+                                                               <th style={{ 
+                                  padding: '12px', 
+                                  textAlign: 'center', 
+                                  borderBottom: '1px solid #dee2e6',
+                                  fontWeight: '600',
+                                  color: '#495057'
+                                }}>
+                                  Context
+                                </th>
+                                <th style={{ 
+                                  padding: '12px', 
+                                  textAlign: 'center', 
+                                  borderBottom: '1px solid #dee2e6',
+                                  fontWeight: '600',
+                                  color: '#495057'
+                                }}>
+                                  Timeline
+                                </th>
+                                <th style={{ 
+                                  padding: '12px', 
+                                  textAlign: 'left', 
+                                  borderBottom: '1px solid #dee2e6',
+                                  fontWeight: '600',
+                                  color: '#495057'
+                                }}>
+                                  Affected Boards
+                                </th>
+                             </tr>
+                           </thead>
+                           <tbody>
+                             {repeatedPoints.map((point, index) => {
+                               // Calculate frequency score (occurrences per board affected)
+                               const frequencyScore = (point.totalOccurrences / point.boards.length).toFixed(1);
+                               
+                               return (
+                                 <tr key={index} style={{ 
+                                   borderBottom: '1px solid #f1f3f4',
+                                   background: index % 2 === 0 ? '#ffffff' : '#f8f9fa'
+                                 }}>
+                                   <td style={{ 
+                                     padding: '12px', 
+                                     fontWeight: '500',
+                                     color: '#dc3545'
+                                   }}>
+                                     {point.title}
+                                   </td>
+                                   <td style={{ 
+                                     padding: '12px', 
+                                     textAlign: 'center',
+                                     fontWeight: '600',
+                                     color: '#dc3545'
+                                   }}>
+                                     {point.totalOccurrences}
+                                   </td>
+                                   <td style={{ 
+                                     padding: '12px', 
+                                     textAlign: 'center'
+                                   }}>
+                                     {point.boards.length}
+                                   </td>
+                                                                       <td style={{ 
+                                      padding: '12px', 
+                                      textAlign: 'center',
+                                      fontWeight: '600'
+                                    }}>
+                                      <span style={{
+                                        padding: '4px 8px',
+                                        background: frequencyScore > 2 ? '#dc3545' : frequencyScore > 1.5 ? '#fd7e14' : '#ffc107',
+                                        color: 'white',
+                                        borderRadius: '4px',
+                                        fontSize: '0.8rem'
+                                      }}>
+                                        {frequencyScore}
+                                      </span>
+                                    </td>
+                                    <td style={{ 
+                                      padding: '12px', 
+                                      textAlign: 'center',
+                                      fontSize: '0.8rem'
+                                    }}>
+                                      {point.context && point.context.length > 0 ? (
+                                        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                                          {point.context.map((ctx, idx) => (
+                                            <span key={idx} style={{
+                                              padding: '2px 6px',
+                                              background: '#e3f2fd',
+                                              color: '#1976d2',
+                                              borderRadius: '3px',
+                                              fontSize: '0.7rem',
+                                              fontWeight: '500'
+                                            }}>
+                                              {ctx}
+                                            </span>
+                                          ))}
+                                        </div>
+                                      ) : (
+                                                                                <span style={{ color: '#6c757d', fontStyle: 'italic' }}>General</span>
+                                      )}
+                                    </td>
+                                    <td style={{ 
+                                      padding: '12px',
+                                      fontSize: '0.8rem',
+                                      textAlign: 'center'
+                                    }}>
+                                      {point.timeline && point.timeline.length > 0 ? (
+                                        <div style={{ 
+                                          display: 'flex', 
+                                          flexDirection: 'column', 
+                                          gap: '3px',
+                                          alignItems: 'center'
+                                        }}>
+                                          {/* First and Last Seen */}
+                                          <div style={{ 
+                                            fontSize: '0.7rem',
+                                            color: '#495057',
+                                            fontWeight: '500'
+                                          }}>
+                                            {point.firstSeen ? point.firstSeen.toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : 'Unknown'} - {point.lastSeen ? point.lastSeen.toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : 'Unknown'}
+                                          </div>
+                                          
+                                          {/* Recent Activity Indicator */}
+                                          {point.lastSeen && (new Date() - point.lastSeen) < (30 * 24 * 60 * 60 * 1000) && (
+                                            <span style={{
+                                              padding: '2px 6px',
+                                              background: '#dc3545',
+                                              color: 'white',
+                                              borderRadius: '12px',
+                                              fontSize: '0.6rem',
+                                              fontWeight: '600'
+                                            }}>
+                                              Active
+                                            </span>
+                                          )}
+                                          
+                                          {/* Monthly Count */}
+                                          <div style={{ 
+                                            fontSize: '0.65rem',
+                                            color: '#6c757d'
+                                          }}>
+                                            {Array.from(new Set(point.timeline.map(t => t.month))).length} months
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <span style={{ color: '#6c757d', fontStyle: 'italic' }}>No timeline data</span>
+                                      )}
+                                    </td>
+                                    <td style={{ 
+                                      padding: '12px',
+                                      fontSize: '0.8rem'
+                                    }}>
+                                      <div style={{ 
+                                        display: 'flex', 
+                                        flexDirection: 'column', 
+                                        gap: '2px'
+                                      }}>
+                                        {point.boards.map((boardName, boardIndex) => (
+                                          <div key={boardIndex} style={{
+                                            padding: '2px 4px',
+                                            background: '#f8f9fa',
+                                            borderRadius: '2px',
+                                            fontSize: '0.7rem',
+                                            color: '#495057',
+                                            border: '1px solid #e9ecef',
+                                            wordBreak: 'break-word'
+                                          }}>
+                                            {boardName}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </td>
+                                 </tr>
+                               );
+                             })}
+                           </tbody>
+                         </table>
+                       </div>
+                     </div>
+                     
+                     {/* Context Breakdown */}
+                     <div className="context-breakdown" style={{
+                       marginTop: '20px',
+                       padding: '20px',
+                       background: '#fff8f5',
+                       borderRadius: '8px',
+                       border: '1px solid #fed7d7'
+                     }}>
+                       <h5 style={{ 
+                         margin: '0 0 15px 0', 
+                         color: '#dc3545',
+                         display: 'flex',
+                         alignItems: 'center',
+                         gap: '8px'
+                       }}>
+                         📊 Context Breakdown Analysis
+                       </h5>
+                       
+                       {/* Context Filter State */}
+                       {(() => {
+                         // Analyze context distribution
+                         const contextStats = {};
+                         repeatedPoints.forEach(point => {
+                           if (point.context) {
+                             point.context.forEach(ctx => {
+                               if (!contextStats[ctx]) {
+                                 contextStats[ctx] = { count: 0, totalOccurrences: 0, boards: new Set() };
+                               }
+                               contextStats[ctx].count++;
+                               contextStats[ctx].totalOccurrences += point.totalOccurrences;
+                               point.boards.forEach(board => contextStats[ctx].boards.add(board));
+                             });
+                           }
+                         });
+                         
+                         const contextArray = Object.entries(contextStats)
+                           .map(([context, stats]) => ({
+                             context,
+                             count: stats.count,
+                             totalOccurrences: stats.totalOccurrences,
+                             boards: Array.from(stats.boards),
+                             avgOccurrences: stats.totalOccurrences / stats.count
+                           }))
+                           .sort((a, b) => b.count - a.count);
+                         
+                         // Filter points by selected context
+                         const filteredPoints = selectedContext 
+                           ? repeatedPoints.filter(point => 
+                               point.context && point.context.includes(selectedContext)
+                             )
+                           : repeatedPoints;
+                         
+                         if (contextArray.length === 0) return null;
+                         
+                         return (
+                           <>
+                             {/* Context Cards */}
+                             <div style={{ 
+                               display: 'grid', 
+                               gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+                               gap: '15px',
+                               marginBottom: selectedContext ? '20px' : '0'
+                             }}>
+                               {contextArray.slice(0, 6).map((ctx, index) => (
+                                 <div 
+                                   key={index} 
+                                   style={{
+                                     padding: '15px',
+                                     background: selectedContext === ctx.context ? '#e3f2fd' : 'white',
+                                     borderRadius: '6px',
+                                     border: selectedContext === ctx.context ? '2px solid #1976d2' : '1px solid #fed7d7',
+                                     position: 'relative',
+                                     cursor: 'pointer',
+                                     transition: 'all 0.3s ease'
+                                   }}
+                                   onClick={() => setSelectedContext(selectedContext === ctx.context ? null : ctx.context)}
+                                 >
+                                   <div style={{ 
+                                     position: 'absolute', 
+                                     top: '10px', 
+                                     right: '10px',
+                                     background: selectedContext === ctx.context ? '#1976d2' : '#dc3545',
+                                     color: 'white',
+                                     borderRadius: '50%',
+                                     width: '24px',
+                                     height: '24px',
+                                     display: 'flex',
+                                     alignItems: 'center',
+                                     justifyContent: 'center',
+                                     fontSize: '0.7rem',
+                                     fontWeight: '600'
+                                   }}>
+                                     {ctx.count}
+                                   </div>
+                                   
+                                   <div style={{ 
+                                     fontWeight: '600', 
+                                     color: selectedContext === ctx.context ? '#1976d2' : '#dc3545',
+                                     marginBottom: '8px',
+                                     fontSize: '0.9rem',
+                                     textTransform: 'capitalize'
+                                   }}>
+                                     {ctx.context}
+                                   </div>
+                                   
+                                   <div style={{ 
+                                     fontSize: '0.8rem', 
+                                     color: '#6c757d',
+                                     marginBottom: '4px'
+                                   }}>
+                                     <strong>Issues:</strong> {ctx.count}
+                                   </div>
+                                   
+                                   <div style={{ 
+                                     fontSize: '0.8rem', 
+                                     color: '#6c757d',
+                                     marginBottom: '4px'
+                                   }}>
+                                     <strong>Total Occurrences:</strong> {ctx.totalOccurrences}
+                                   </div>
+                                   
+                                   <div style={{ 
+                                     fontSize: '0.8rem', 
+                                     color: '#6c757d',
+                                     marginBottom: '8px'
+                                   }}>
+                                     <strong>Boards Affected:</strong> {ctx.boards.length}
+                                   </div>
+                                   
+                                   <div style={{ 
+                                     fontSize: '0.7rem', 
+                                     color: '#6c757d',
+                                     fontStyle: 'italic'
+                                   }}>
+                                     Avg {ctx.avgOccurrences.toFixed(1)} occurrences per issue
+                                   </div>
+                                   
+                                   {/* Click indicator */}
+                                   <div style={{
+                                     position: 'absolute',
+                                     bottom: '8px',
+                                     right: '8px',
+                                     fontSize: '0.7rem',
+                                     color: selectedContext === ctx.context ? '#1976d2' : '#6c757d',
+                                     fontWeight: '500'
+                                   }}>
+                                     {selectedContext === ctx.context ? '✓ Selected' : 'Click to filter'}
+                                   </div>
+                                 </div>
+                               ))}
+                             </div>
+                             
+                             {/* Filtered Issues Display */}
+                             {selectedContext && (
+                               <div style={{
+                                 marginTop: '20px',
+                                 padding: '20px',
+                                 background: '#e3f2fd',
+                                 borderRadius: '8px',
+                                 border: '1px solid #bbdefb'
+                               }}>
+                                 <div style={{
+                                   display: 'flex',
+                                   justifyContent: 'space-between',
+                                   alignItems: 'center',
+                                   marginBottom: '15px'
+                                 }}>
+                                   <h6 style={{ 
+                                     margin: '0', 
+                                     color: '#1976d2',
+                                     fontSize: '1.1rem',
+                                     fontWeight: '600',
+                                     textTransform: 'capitalize'
+                                   }}>
+                                     🔍 {selectedContext} Issues ({filteredPoints.length} issues)
+                                   </h6>
+                                   <button
+                                     onClick={() => setSelectedContext(null)}
+                                     style={{
+                                       padding: '6px 12px',
+                                       background: '#1976d2',
+                                       color: 'white',
+                                       border: 'none',
+                                       borderRadius: '4px',
+                                       fontSize: '0.8rem',
+                                       cursor: 'pointer',
+                                       fontWeight: '500'
+                                     }}
+                                   >
+                                     Clear Filter
+                                   </button>
+                                 </div>
+                                 
+                                 <div style={{ 
+                                   display: 'grid', 
+                                   gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+                                   gap: '15px'
+                                 }}>
+                                   {filteredPoints.map((point, index) => (
+                                     <div key={index} style={{
+                                       padding: '15px',
+                                       background: 'white',
+                                       borderRadius: '8px',
+                                       border: '1px solid #bbdefb',
+                                       position: 'relative'
+                                     }}>
+                                       <div style={{ 
+                                         position: 'absolute', 
+                                         top: '10px', 
+                                         right: '10px',
+                                         background: '#1976d2',
+                                         color: 'white',
+                                         borderRadius: '50%',
+                                         width: '24px',
+                                         height: '24px',
+                                         display: 'flex',
+                                         alignItems: 'center',
+                                         justifyContent: 'center',
+                                         fontSize: '0.7rem',
+                                         fontWeight: '600'
+                                       }}>
+                                         {point.totalOccurrences}
+                                       </div>
+                                       
+                                       <div style={{ 
+                                         fontWeight: '600', 
+                                         color: '#1976d2',
+                                         marginBottom: '8px',
+                                         fontSize: '0.9rem'
+                                       }}>
+                                         {point.title}
+                                       </div>
+                                       
+                                       <div style={{ 
+                                         fontSize: '0.8rem', 
+                                         color: '#6c757d',
+                                         marginBottom: '8px'
+                                       }}>
+                                         <strong>Total Occurrences:</strong> {point.totalOccurrences}
+                                       </div>
+                                       
+                                       <div style={{ 
+                                         fontSize: '0.8rem', 
+                                         color: '#6c757d',
+                                         marginBottom: '8px'
+                                       }}>
+                                         <strong>Appears in {point.boards.length} board{point.boards.length > 1 ? 's' : ''}:</strong>
+                                       </div>
+                                       
+                                       <div style={{ marginBottom: '8px' }}>
+                                         <div style={{ 
+                                           fontSize: '0.8rem', 
+                                           color: '#6c757d',
+                                           marginBottom: '4px'
+                                         }}>
+                                           <strong>Appears in {point.boards.length} board{point.boards.length > 1 ? 's' : ''}:</strong>
+                                         </div>
+                                         <div style={{ 
+                                           display: 'flex', 
+                                           flexDirection: 'column', 
+                                           gap: '3px'
+                                         }}>
+                                           {point.boards.map((boardName, boardIndex) => (
+                                             <div key={boardIndex} style={{
+                                               padding: '4px 8px',
+                                               background: '#f8f9fa',
+                                               borderRadius: '4px',
+                                               fontSize: '0.75rem',
+                                               color: '#495057',
+                                               border: '1px solid #e9ecef',
+                                               display: 'flex',
+                                               alignItems: 'center',
+                                               gap: '6px'
+                                             }}>
+                                               <span style={{
+                                                 width: '8px',
+                                                 height: '8px',
+                                                 background: '#1976d2',
+                                                 borderRadius: '50%',
+                                                 flexShrink: 0
+                                               }}></span>
+                                               <span style={{ 
+                                                 fontWeight: '500',
+                                                 wordBreak: 'break-word'
+                                               }}>
+                                                 {boardName}
+                                               </span>
+                                             </div>
+                                           ))}
+                                         </div>
+                                       </div>
+                                       
+                                       {/* Similar Points */}
+                                       {point.similarPoints && point.similarPoints.length > 0 && (
+                                         <div style={{ 
+                                           fontSize: '0.7rem', 
+                                           color: '#6c757d',
+                                           marginBottom: '8px'
+                                         }}>
+                                           <strong>Similar Issues ({point.similarPoints.length}):</strong>
+                                           <div style={{ marginTop: '4px' }}>
+                                             {point.similarPoints.slice(0, 2).map((similarPoint, idx) => (
+                                               <div key={idx} style={{
+                                                 padding: '2px 6px',
+                                                 background: '#f8f9fa',
+                                                 borderRadius: '3px',
+                                                 marginBottom: '2px',
+                                                 fontSize: '0.65rem',
+                                                 borderLeft: '2px solid #1976d2'
+                                               }}>
+                                                 {similarPoint.length > 30 ? similarPoint.substring(0, 30) + '...' : similarPoint}
+                                               </div>
+                                             ))}
+                                             {point.similarPoints.length > 2 && (
+                                               <div style={{ fontSize: '0.65rem', color: '#6c757d', fontStyle: 'italic' }}>
+                                                 +{point.similarPoints.length - 2} more similar issues
+                                               </div>
+                                             )}
+                                           </div>
+                                         </div>
+                                       )}
+                                       
+                                       {/* Frequency Score */}
+                                       <div style={{ 
+                                         fontSize: '0.7rem', 
+                                         color: '#6c757d',
+                                         textAlign: 'right'
+                                       }}>
+                                         <span style={{
+                                           padding: '2px 6px',
+                                           background: '#1976d2',
+                                           color: 'white',
+                                           borderRadius: '3px',
+                                           fontSize: '0.65rem',
+                                           fontWeight: '500'
+                                         }}>
+                                           Frequency: {(point.totalOccurrences / point.boards.length).toFixed(1)}
+                                         </span>
+                                       </div>
+                                     </div>
+                                   ))}
+                                 </div>
+                                 
+                                 {/* Summary for filtered context */}
+                                 <div style={{
+                                   marginTop: '15px',
+                                   padding: '15px',
+                                   background: 'white',
+                                   borderRadius: '6px',
+                                   border: '1px solid #bbdefb'
+                                 }}>
+                                   <div style={{ 
+                                     fontSize: '0.9rem', 
+                                     color: '#1976d2',
+                                     fontWeight: '600',
+                                     marginBottom: '8px'
+                                   }}>
+                                     📈 {selectedContext.charAt(0).toUpperCase() + selectedContext.slice(1)} Context Summary:
+                                   </div>
+                                   <div style={{ 
+                                     fontSize: '0.8rem', 
+                                     color: '#6c757d',
+                                     lineHeight: '1.5'
+                                   }}>
+                                     <strong>Total Issues:</strong> {filteredPoints.length} | 
+                                     <strong>Total Occurrences:</strong> {filteredPoints.reduce((sum, p) => sum + p.totalOccurrences, 0)} | 
+                                     <strong>Boards Affected:</strong> {new Set(filteredPoints.flatMap(p => p.boards)).size} | 
+                                     <strong>Avg Frequency:</strong> {(filteredPoints.reduce((sum, p) => sum + (p.totalOccurrences / p.boards.length), 0) / filteredPoints.length).toFixed(1)}
+                                   </div>
+                                 </div>
+                               </div>
+                             )}
+                           </>
+                         );
+                       })()}
+                       
+                       
+                     </div>
+                     
+                     {/* Recommendations */}
+                     <div className="recommendations" style={{
+                       marginTop: '20px',
+                       padding: '20px',
+                       background: '#e3f2fd',
+                       borderRadius: '8px',
+                       border: '1px solid #bbdefb'
+                     }}>
+                       <h5 style={{ 
+                         margin: '0 0 15px 0', 
+                         color: '#1976d2',
+                         display: 'flex',
+                         alignItems: 'center',
+                         gap: '8px'
+                       }}>
+                         <AlertTriangle size={18} />
+                         Actionable Recommendations
+                       </h5>
+                       
+                       <div style={{ 
+                         display: 'grid', 
+                         gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+                         gap: '15px'
+                       }}>
+                         <div style={{
+                           padding: '12px',
+                           background: 'white',
+                           borderRadius: '6px',
+                           border: '1px solid #bbdefb'
+                         }}>
+                           <div style={{ fontWeight: '600', color: '#1976d2', marginBottom: '5px' }}>
+                             High Priority Issues
+                           </div>
+                           <div style={{ fontSize: '0.8rem', color: '#6c757d' }}>
+                             Focus on issues with frequency score > 2.0 first, as they appear most frequently per board.
+                           </div>
+                         </div>
+                         
+                         <div style={{
+                           padding: '12px',
+                           background: 'white',
+                           borderRadius: '6px',
+                           border: '1px solid #bbdefb'
+                         }}>
+                           <div style={{ fontWeight: '600', color: '#1976d2', marginBottom: '5px' }}>
+                             Cross-Board Impact
+                           </div>
+                           <div style={{ fontSize: '0.8rem', color: '#6c757d' }}>
+                             Address issues affecting multiple boards as they indicate systemic problems.
+                           </div>
+                         </div>
+                         
+                         <div style={{
+                           padding: '12px',
+                           background: 'white',
+                           borderRadius: '6px',
+                           border: '1px solid #bbdefb'
+                         }}>
+                           <div style={{ fontWeight: '600', color: '#1976d2', marginBottom: '5px' }}>
+                             Root Cause Analysis
+                           </div>
+                           <div style={{ fontSize: '0.8rem', color: '#6c757d' }}>
+                             Investigate why these points keep recurring and implement preventive measures.
+                           </div>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+                 );
+               })()}
+             </div>
           </div>
         )}
 
@@ -1607,6 +3115,24 @@ function RetroBoards({ teamId, teamName, onBack, onRetroClick }) {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* Monthly Retrospective Timeline */}
+        {retroBoards.length > 0 && (
+          <div className="card">
+            <h3 style={{ 
+              marginBottom: '20px', 
+              color: '#2c3e50',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px'
+            }}>
+              <Calendar size={20} />
+              Monthly Retrospective Timeline
+            </h3>
+            
+            <MonthlyTimeline retroBoards={retroBoards} />
           </div>
         )}
 

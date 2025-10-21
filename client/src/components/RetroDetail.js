@@ -38,7 +38,7 @@ function RetroDetail({ retrospectiveId, onBack }) {
     setError(null);
     try {
       const response = await axios.get(`/api/retroboards/${retrospectiveId}`);
-      console.log('Retro detail response:', response.data);
+      // console.log('Retro detail response:', response.data);
       
       if (response.data.success) {
         setRetroDetail(response.data.detailedBoard);
@@ -161,7 +161,7 @@ function RetroDetail({ retrospectiveId, onBack }) {
       if (response.data.success) {
         setClassifiedItems(response.data.classifiedItems);
         setShowClassification(true);
-        console.log('Classification result:', response.data);
+        // console.log('Classification result:', response.data);
       } else {
         setError('Failed to classify items');
       }
@@ -441,8 +441,8 @@ function RetroDetail({ retrospectiveId, onBack }) {
                 Retrospective Items ({retroDetail.retrospectiveItems.length})
               </h3>
               
-              {/* Debug info */}
-              <div style={{ 
+              {/* Debug info - Hidden for production */}
+              {/* <div style={{ 
                 marginBottom: '16px', 
                 padding: '12px', 
                 background: '#e3f2fd', 
@@ -453,7 +453,7 @@ function RetroDetail({ retrospectiveId, onBack }) {
                 <strong>Debug Info:</strong> Found {retroDetail.retrospectiveItems.length} items
                 <br />
                 <strong>First item sample:</strong> {JSON.stringify(retroDetail.retrospectiveItems[0], null, 2)}
-              </div>
+              </div> */}
               
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ 
@@ -714,16 +714,19 @@ function RetroDetail({ retrospectiveId, onBack }) {
               <div style={{ 
                 marginTop: '20px', 
                 padding: '20px', 
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+                background: 'white', 
                 borderRadius: '12px',
-                color: 'white'
+                color: '#1e293b',
+                border: '1px solid #e2e8f0',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)'
               }}>
                 <h4 style={{ 
                   margin: '0 0 20px 0', 
                   fontSize: '1.3rem', 
                   display: 'flex', 
                   alignItems: 'center', 
-                  gap: '10px' 
+                  gap: '10px',
+                  color: '#1e293b'
                 }}>
                   <BarChart3 size={20} />
                   AI Classification Comparison Analysis
@@ -731,7 +734,7 @@ function RetroDetail({ retrospectiveId, onBack }) {
                 
                 {/* Classification Distribution Chart */}
                 <div style={{ marginBottom: '25px' }}>
-                  <h5 style={{ margin: '0 0 15px 0', fontSize: '1.1rem' }}>📊 Classification Distribution</h5>
+                  <h5 style={{ margin: '0 0 15px 0', fontSize: '1.1rem', color: '#1e293b' }}>📊 Classification Distribution</h5>
                   <div style={{ 
                     display: 'flex', 
                     gap: '15px', 
@@ -792,7 +795,7 @@ function RetroDetail({ retrospectiveId, onBack }) {
 
                 {/* Column-wise Analysis */}
                 <div style={{ marginBottom: '25px' }}>
-                  <h5 style={{ margin: '0 0 15px 0', fontSize: '1.1rem' }}>🏷️ Column-wise Classification</h5>
+                  <h5 style={{ margin: '0 0 15px 0', fontSize: '1.1rem', color: '#1e293b' }}>🏷️ Column-wise Classification</h5>
                   <div style={{ 
                     display: 'grid', 
                     gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
@@ -811,15 +814,16 @@ function RetroDetail({ retrospectiveId, onBack }) {
 
                       return Object.entries(columnAnalysis).map(([columnTitle, stats]) => (
                         <div key={columnTitle} style={{
-                          background: 'rgba(255, 255, 255, 0.1)',
+                          background: '#f8fafc',
                           padding: '15px',
                           borderRadius: '8px',
-                          border: '1px solid rgba(255, 255, 255, 0.2)'
+                          border: '1px solid #e2e8f0'
                         }}>
                           <div style={{ 
                             fontWeight: '600', 
                             marginBottom: '10px',
-                            fontSize: '0.9rem'
+                            fontSize: '0.9rem',
+                            color: '#1e293b'
                           }}>
                             {columnTitle}
                           </div>
@@ -860,7 +864,7 @@ function RetroDetail({ retrospectiveId, onBack }) {
 
                 {/* Engagement Analysis */}
                 <div style={{ marginBottom: '25px' }}>
-                  <h5 style={{ margin: '0 0 15px 0', fontSize: '1.1rem' }}>👍 Engagement vs Classification</h5>
+                  <h5 style={{ margin: '0 0 15px 0', fontSize: '1.1rem', color: '#1e293b' }}>👍 Engagement vs Classification</h5>
                   <div style={{ 
                     display: 'grid', 
                     gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
@@ -878,44 +882,44 @@ function RetroDetail({ retrospectiveId, onBack }) {
                       return (
                         <>
                           <div style={{
-                            background: 'rgba(40, 167, 69, 0.2)',
+                            background: '#f0fdf4',
                             padding: '15px',
                             borderRadius: '8px',
-                            border: '1px solid rgba(40, 167, 69, 0.4)',
+                            border: '1px solid #bbf7d0',
                             textAlign: 'center'
                           }}>
                             <div style={{ fontSize: '1.2rem', fontWeight: '600', color: '#28a745' }}>
                               {avgGoodUpvotes.toFixed(1)}
                             </div>
-                            <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>
+                            <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
                               Avg Upvotes (Good)
                             </div>
                           </div>
                           <div style={{
-                            background: 'rgba(220, 53, 69, 0.2)',
+                            background: '#fef2f2',
                             padding: '15px',
                             borderRadius: '8px',
-                            border: '1px solid rgba(220, 53, 69, 0.4)',
+                            border: '1px solid #fecaca',
                             textAlign: 'center'
                           }}>
                             <div style={{ fontSize: '1.2rem', fontWeight: '600', color: '#dc3545' }}>
                               {avgBadUpvotes.toFixed(1)}
                             </div>
-                            <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>
+                            <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
                               Avg Upvotes (Bad)
                             </div>
                           </div>
                           <div style={{
-                            background: 'rgba(255, 193, 7, 0.2)',
+                            background: '#fffbeb',
                             padding: '15px',
                             borderRadius: '8px',
-                            border: '1px solid rgba(255, 193, 7, 0.4)',
+                            border: '1px solid #fed7aa',
                             textAlign: 'center'
                           }}>
                             <div style={{ fontSize: '1.2rem', fontWeight: '600', color: '#ffc107' }}>
                               {avgGoodUpvotes > avgBadUpvotes ? 'Higher' : avgGoodUpvotes < avgBadUpvotes ? 'Lower' : 'Equal'}
                             </div>
-                            <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>
+                            <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
                               Good vs Bad Engagement
                             </div>
                           </div>
@@ -927,7 +931,7 @@ function RetroDetail({ retrospectiveId, onBack }) {
 
                 {/* Key Insights */}
                 <div>
-                  <h5 style={{ margin: '0 0 15px 0', fontSize: '1.1rem' }}>💡 Key Insights</h5>
+                  <h5 style={{ margin: '0 0 15px 0', fontSize: '1.1rem', color: '#1e293b' }}>💡 Key Insights</h5>
                   <div style={{ 
                     display: 'grid', 
                     gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
@@ -985,10 +989,10 @@ function RetroDetail({ retrospectiveId, onBack }) {
 
                       return insights.map((insight, index) => (
                         <div key={index} style={{
-                          background: 'rgba(255, 255, 255, 0.1)',
+                          background: '#f8fafc',
                           padding: '15px',
                           borderRadius: '8px',
-                          border: '1px solid rgba(255, 255, 255, 0.2)'
+                          border: '1px solid #e2e8f0'
                         }}>
                           <div style={{ 
                             fontSize: '1.5rem', 
@@ -999,13 +1003,14 @@ function RetroDetail({ retrospectiveId, onBack }) {
                           <div style={{ 
                             fontWeight: '600', 
                             marginBottom: '8px',
-                            fontSize: '0.9rem'
+                            fontSize: '0.9rem',
+                            color: '#1e293b'
                           }}>
                             {insight.title}
                           </div>
                           <div style={{ 
                             fontSize: '0.8rem', 
-                            opacity: 0.9,
+                            color: '#64748b',
                             lineHeight: '1.4'
                           }}>
                             {insight.description}

@@ -6,16 +6,13 @@ import {
   EyeOff, 
   RefreshCw, 
   AlertCircle,
-  CheckCircle,
   Loader,
   Users,
   Crown,
   ExternalLink,
   Info,
   BarChart3,
-  ArrowRight,
-  Plus,
-  Settings
+  TrendingUp
 } from 'lucide-react';
 import LandingPage from './components/LandingPage';
 import RetroBoards from './components/RetroBoards';
