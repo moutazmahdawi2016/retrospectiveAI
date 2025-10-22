@@ -40,13 +40,6 @@ function LandingPage({ onGetStarted }) {
     }
   ];
 
-  const stats = [
-    { number: "99.9%", label: "Uptime" },
-    { number: "<100ms", label: "Response Time" },
-    { number: "1000+", label: "Projects Handled" },
-    { number: "24/7", label: "Support" }
-  ];
-
   const testimonials = [
     {
       name: "Sarah Chen",
@@ -133,30 +126,13 @@ function LandingPage({ onGetStarted }) {
           <div className="hero-buttons">
             <button onClick={onGetStarted} className="hero-btn-primary">
               <Play size={20} />
-              <span>Start Free Trial</span>
-            </button>
-            
-            <button className="hero-btn-secondary">
-              <ExternalLink size={20} />
-              <span>View Demo</span>
+              <span>Get Started</span>
             </button>
           </div>
           
           <div className="hero-scroll">
             <ChevronDown size={24} />
           </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="stats-section">
-        <div className="stats-container">
-          {stats.map((stat, index) => (
-            <div key={index} className="stat-item">
-              <div className="stat-number">{stat.number}</div>
-              <div className="stat-label">{stat.label}</div>
-            </div>
-          ))}
         </div>
       </section>
 
