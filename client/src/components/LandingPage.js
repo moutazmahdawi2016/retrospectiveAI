@@ -120,11 +120,6 @@ function LandingPage({ onGetStarted }) {
       {/* Hero Section */}
       <section className="hero-section">
         <div className="hero-container">
-          <div className="hero-badge">
-            <Star size={16} />
-            <span>Trusted by 1000+ Teams</span>
-          </div>
-          
           <h1 className="hero-title">
             Retrospective
             <span className="hero-title-accent">Insight with AI</span>
