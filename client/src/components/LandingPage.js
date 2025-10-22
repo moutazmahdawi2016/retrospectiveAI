@@ -40,30 +40,6 @@ function LandingPage({ onGetStarted }) {
     }
   ];
 
-  const testimonials = [
-    {
-      name: "Sarah Chen",
-      role: "DevOps Engineer",
-      company: "TechCorp",
-      content: "This tool has revolutionized how we manage our Azure DevOps projects. The AI insights are game-changing!",
-      rating: 5
-    },
-    {
-      name: "Marcus Rodriguez",
-      role: "Team Lead",
-      company: "InnovateSoft",
-      content: "The retrospective features have improved our team's productivity by 40%. Highly recommended!",
-      rating: 5
-    },
-    {
-      name: "Emily Watson",
-      role: "Scrum Master",
-      company: "AgileFlow",
-      content: "Finally, a tool that makes Azure DevOps management simple and insightful. Love the analytics!",
-      rating: 5
-    }
-  ];
-
   return (
     <div className="landing-page">
       {/* Navigation */}
@@ -186,33 +162,6 @@ function LandingPage({ onGetStarted }) {
               <h3 className="step-title">Analyze</h3>
               <p className="step-description">Get AI-powered insights and team effectiveness metrics</p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="testimonials-section">
-        <div className="testimonials-container">
-          <div className="section-header">
-            <h2 className="section-title">What Our Users Say</h2>
-            <p className="section-subtitle">Join thousands of satisfied team leaders and professionals</p>
-          </div>
-          
-          <div className="testimonials-grid">
-            {testimonials.map((testimonial, index) => (
-              <div key={index} className="testimonial-card">
-                <div className="testimonial-rating">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} size={20} className="star-filled" />
-                  ))}
-                </div>
-                <p className="testimonial-content">"{testimonial.content}"</p>
-                <div className="testimonial-author">
-                  <div className="author-name">{testimonial.name}</div>
-                  <div className="author-role">{testimonial.role} at {testimonial.company}</div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
