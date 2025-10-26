@@ -12,7 +12,8 @@ import {
   ExternalLink,
   Info,
   BarChart3,
-  TrendingUp
+  TrendingUp,
+  Filter
 } from 'lucide-react';
 import LandingPage from './components/LandingPage';
 import RetroBoards from './components/RetroBoards';
@@ -30,6 +31,51 @@ function App() {
   const [currentView, setCurrentView] = useState('landing'); // 'landing', 'projects', 'retroboards', 'retrodetail', 'info', or 'teamcomparison'
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [selectedRetro, setSelectedRetro] = useState(null);
+  const [selectedPortfolio, setSelectedPortfolio] = useState('all'); // Portfolio filter
+
+  // Portfolio mapping based on project name
+  const getPortfolioId = (projectName) => {
+    const portfolioMap = {
+      'Notification Gate': 1, 'Reach': 1, 'SFDA Faseh': 1, 'SFDA Ghad': 1, 'SFDA SDR': 1, 
+      'Saber Commercial': 1, 'Saber Non-Commercial': 1, 'Tic Capsule': 1, 'Halal': 1,
+      'Ehkaam': 2, 'Mwathiq': 2, 'SBA Arbitration & Settlement': 2, 'Order Publish': 2, 'Thara': 2,
+      'Alula Licenses & Permits': 3, 'CDF Portal': 3, 'Dayyaf': 3, 'MOC Abdea': 3, 
+      'Makanak': 3, 'Maroof': 3, 'Bayyin': 4, 'Commercial Registration': 4, 'Etikal': 4,
+      'Franchise': 4, 'NCFB': 4, 'ROSHN Marketplace': 4, 'SILZ': 4, 'Sijillaty': 4,
+      'Sales': 4, 'Trade Mark & IPN': 4, 'Trade Names Mazadat': 4, 'نظام تقييم الامتثال': 4,
+      'Brazil COO': 5, 'Certificate of Origin (COO)': 5, 'Clean Leeds': 5, 'Data Quality': 5,
+      'Driving School': 5, 'Global COO SA': 5, 'MAAS - Makkah': 5, 'MAAS - Riyadh': 5,
+      'MCC': 5, 'Oil Measurement': 5, 'Salvage & Spare Parts': 5, 'Taqyees platform': 5,
+      'Vehicle Inspection': 5,
+      'E-Delegation': 12, 'Tahaqaq': 12, 'Wathq': 12
+    };
+    
+    // Check exact match first
+    if (portfolioMap[projectName]) {
+      return portfolioMap[projectName];
+    }
+    
+    // Check partial matches
+    for (const [key, value] of Object.entries(portfolioMap)) {
+      if (projectName.includes(key) || key.includes(projectName)) {
+        return value;
+      }
+    }
+    
+    return null; // No portfolio found
+  };
+
+  const getPortfolioName = (portfolioId) => {
+    const portfolioNames = {
+      1: 'Products Safety & Logistics',
+      2: 'Justice and Urban Development',
+      3: 'QoL & PIF',
+      4: 'Enterprise Solutions',
+      5: 'Mobility & Industrial Tech',
+      12: 'Digital Venture'
+    };
+    return portfolioNames[portfolioId] || 'Uncategorized';
+  };
 
   const fetchProjects = async () => {
     setLoading(true);
@@ -364,10 +410,42 @@ function App() {
             <div className="section-header">
               <h2 className="section-title">Project Management</h2>
               <p className="section-subtitle">Click on any project to view teams and retrospective boards</p>
+              {/* Portfolio Filter Dropdown */}
+              <div style={{ marginTop: '20px', marginBottom: '20px' }}>
+                <label htmlFor="portfolio-filter" style={{ marginRight: '10px', fontWeight: 'bold' }}>Filter by Portfolio:</label>
+                <select 
+                  id="portfolio-filter"
+                  value={selectedPortfolio} 
+                  onChange={(e) => setSelectedPortfolio(e.target.value)}
+                  style={{ 
+                    padding: '8px 12px', 
+                    fontSize: '14px', 
+                    border: '1px solid #ddd', 
+                    borderRadius: '4px',
+                    minWidth: '250px'
+                  }}
+                >
+                  <option value="all">All Portfolios</option>
+                  <option value="1">Products Safety & Logistics (1)</option>
+                  <option value="2">Justice and Urban Development (2)</option>
+                  <option value="3">QoL & PIF (3)</option>
+                  <option value="4">Enterprise Solutions (4)</option>
+                  <option value="5">Mobility & Industrial Tech (5)</option>
+                  <option value="12">Digital Venture (12)</option>
+                  <option value="null">Uncategorized</option>
+                </select>
+              </div>
             </div>
             
             <div className="projects-grid">
-              {projects.map((project) => (
+              {projects
+                .filter(project => {
+                  if (selectedPortfolio === 'all') return true;
+                  const portfolioId = getPortfolioId(project.name);
+                  if (selectedPortfolio === 'null') return portfolioId === null;
+                  return portfolioId === parseInt(selectedPortfolio);
+                })
+                .map((project) => (
                 <div 
                   key={project.id} 
                   className={`project-card ${selectedProject?.id === project.id ? 'expanded' : ''}`}
@@ -380,6 +458,23 @@ function App() {
                     <div className="project-title-section">
                       <h3 className="project-name">{project.name}</h3>
                       <div className="project-badges">
+                        {(() => {
+                          const portfolioId = getPortfolioId(project.name);
+                          return portfolioId && (
+                            <span className="portfolio-badge" style={{
+                              backgroundColor: '#3b82f6',
+                              color: 'white',
+                              padding: '4px 8px',
+                              borderRadius: '4px',
+                              fontSize: '11px',
+                              fontWeight: 'bold',
+                              marginRight: '8px'
+                            }}>
+                              <Filter size={12} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                              {getPortfolioName(portfolioId)}
+                            </span>
+                          );
+                        })()}
                         <span className={`visibility-badge ${project.visibility}`}>
                           {project.visibility === 'public' ? (
                             <Eye size={14} />
