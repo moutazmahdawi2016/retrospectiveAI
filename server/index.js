@@ -81,14 +81,17 @@ app.post('/api/projects/:projectName/teams', async (req, res) => {
       headers: createAzureDevOpsHeaders()
     });
 
-    // Extract teams from the identities array
+    // Extract teams from the identities array - only show default teams
     const dataProvider = response.data.dataProviders?.["ms.vss-admin-web.org-admin-groups-data-provider"];
-    const teams = dataProvider?.identities?.filter(identity => identity.subjectKind === 'team') || [];
+    const allTeams = dataProvider?.identities?.filter(identity => identity.subjectKind === 'team') || [];
+    
+    // Filter to only show default teams
+    const defaultTeams = allTeams.filter(team => team.isDefaultTeam === true);
 
     res.json({
       success: true,
       data: response.data,
-      teams: teams.map(team => ({
+      teams: defaultTeams.map(team => ({
         id: team.identityId,
         name: team.displayName,
         description: team.description || '',
