@@ -36,7 +36,7 @@ function App() {
   // Portfolio mapping based on project name
   const getPortfolioId = (projectName) => {
     const portfolioMap = {
-      'Notification Gate': 1, 'SASO Acceptance Gate': 1, 'Reach': 1, 'SFDA Faseh': 1, 'SFDA Ghad': 1, 'SFDA SDR': 1, 
+      'Notification Gate': 1, 'SASO Acceptance Gate': 1, 'Reach': 1, 'SFDA Faseh': 1, 'SFDA.Faseh': 1, 'SFDA Ghad': 1, 'SFDA SDR': 1, 
       'Saber Commercial': 1, 'Saber Non-Commercial': 1, 'Tic Capsule': 1, 'Halal': 1,
       'Ehkaam': 2, 'Mwathiq': 2, 'SBA Arbitration & Settlement': 2, 'Order Publish': 2, 'Thara': 2,
       'Alula Licenses & Permits': 3, 'CDF Portal': 3, 'Dayyaf': 3, 'MOC Abdea': 3, 
