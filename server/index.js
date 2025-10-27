@@ -485,11 +485,10 @@ app.get('*', (req, res) => {
 
 const PORT = config.server.port;
 
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📊 Azure DevOps API endpoint: ${config.azureDevOps.baseUrl}/${config.azureDevOps.organization}`);
   console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
   console.log(`📋 Projects endpoint: http://localhost:${PORT}/api/projects`);
   console.log(`👥 Teams endpoint: http://localhost:${PORT}/api/projects/:projectName/teams`);
-  console.log(`🌐 Server accessible on network at: http://[YOUR_IP]:${PORT}`);
 });

@@ -15,7 +15,6 @@ Retrospective AI is a full-stack web application that integrates with Azure DevO
 - **Backend**: Node.js/Express server with Azure DevOps API integration
 - **Deployment**: Render.com hosting both frontend and backend from a single service URL
 - **Environment**: Secure PAT management via environment variables (.env file)
-- **Network**: Configured for TBS-EMP network access
 
 ## Portfolio Structure
 The application organizes projects into 6 portfolios based on business domains, allowing teams to filter and view projects relevant to their area of focus.
