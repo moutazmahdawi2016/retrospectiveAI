@@ -38,7 +38,7 @@ function App() {
     const portfolioMap = {
       'Notification Gate': 1, 'SASO Acceptance Gate': 1, 'Reach': 1, 'SFDA Faseh': 1, 'SFDA.Faseh': 1, 'SFDA_Drugs_Registration_portal': 1, 'SFDA Ghad': 1, 'SFDA SDR': 1, 
       'Saber Commercial': 1, 'Saber Non-Commercial': 1, 'Tic Capsule': 1, 'Halal': 1, 'Maneh': 1, 'products_catalog': 1,
-      'Ehkaam': 2, 'Mwathiq': 2, 'MOJMowathiq': 2, 'MOJ_eAuction': 2, 'SBA Arbitration & Settlement': 2, 'Order Publish': 2, 'Thara': 2,
+      'Ehkaam': 2, 'Mwathiq': 2, 'MOJMowathiq': 2, 'MOJ_eAuction': 2, 'SBA Arbitration & Settlement': 2, 'Order Publish': 2, 'SPGA_RealEstateOwnership': 2, 'Thara': 2,
       'Alula Licenses & Permits': 3, 'CDF Portal': 3, 'Dayyaf': 3, 'MOC Abdea': 3, 
       'Makanak': 3, 'Maroof': 3,       'Bayyin': 4, 'Commercial Registration': 4, 'CommercialRegistrationV3': 4, 'CompaniesContracts': 4, 'Etikal': 4,
       'Franchise': 4, 'GACA ILBZ Company Establishment Platform': 4, 'NCFB': 4, 'ROSHN Marketplace': 4, 'SILZ': 4, 'Sijillaty': 4,
