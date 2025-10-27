@@ -44,7 +44,7 @@ function App() {
       'Franchise': 4, 'GACA ILBZ Company Establishment Platform': 4, 'NCFB': 4, 'ROSHN Marketplace': 4, 'SILZ': 4, 'Sijillaty': 4,
       'Sales': 4, 'Trade Mark & IPN': 4, 'Trade Names Mazadat': 4, 'نظام تقييم الامتثال': 4,
       'Brazil COO': 5, 'Certificate of Origin (COO)': 5, 'CertificateOfOrigen': 5, 'Clean Leeds': 5, 'Data Quality': 5,
-      'Driving School': 5, 'Global COO SA': 5, 'MAAS - Makkah': 5, 'MAAS - Riyadh': 5,
+      'Driving School': 5, 'Global - COO': 5, 'Global COO SA': 5, 'MAAS - Makkah': 5, 'MAAS - Riyadh': 5,
       'MCC': 5, 'Oil Measurement': 5, 'Salvage & Spare Parts': 5, 'Taqyees platform': 5,
       'Vehicle Inspection': 5, 'VSC maintenance centers classification': 5,
       'DigitalVentures': 12, 'E-Delegation': 12, 'Tahaqaq': 12, 'Wathq': 12
