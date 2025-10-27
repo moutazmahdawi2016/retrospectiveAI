@@ -46,7 +46,7 @@ function App() {
       'Brazil COO': 5, 'Certificate of Origin (COO)': 5, 'CertificateOfOrigen': 5, 'Clean Leeds': 5, 'Data Quality': 5,
       'Driving School': 5, 'Global COO SA': 5, 'MAAS - Makkah': 5, 'MAAS - Riyadh': 5,
       'MCC': 5, 'Oil Measurement': 5, 'Salvage & Spare Parts': 5, 'Taqyees platform': 5,
-      'Vehicle Inspection': 5,
+      'Vehicle Inspection': 5, 'VSC maintenance centers classification': 5,
       'E-Delegation': 12, 'Tahaqaq': 12, 'Wathq': 12
     };
     
