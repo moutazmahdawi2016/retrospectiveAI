@@ -492,5 +492,5 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`📋 Projects endpoint: http://localhost:${PORT}/api/projects`);
   console.log(`👥 Teams endpoint: http://localhost:${PORT}/api/projects/:projectName/teams`);
   console.log(`🌐 Frontend: Serving React app from ${clientBuildPath}`);
-  console.log(`🌍 Network access: http://0.0.0.0:${PORT} - Accessible from Thiqah network`);
+  console.log(`🌍 Network access: http://0.0.0.0:${PORT} - Accessible from TBS-EMP network`);
 });
