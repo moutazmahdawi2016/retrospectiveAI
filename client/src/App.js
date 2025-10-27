@@ -40,7 +40,7 @@ function App() {
       'Saber Commercial': 1, 'Saber Non-Commercial': 1, 'Tic Capsule': 1, 'Halal': 1, 'Maneh': 1, 'products_catalog': 1,
       'Ehkaam': 2, 'Mwathiq': 2, 'MOJMowathiq': 2, 'MOJ_eAuction': 2, 'SBA Arbitration & Settlement': 2, 'Order Publish': 2, 'SPGA_RealEstateOwnership': 2, 'Thara': 2,
       'Alula Licenses & Permits': 3, 'CDF Portal': 3, 'Dayyaf': 3, 'MOC Abdea': 3, 
-      'Makanak': 3, 'Maroof': 3,       'Bayyin': 4, 'Commercial Registration': 4, 'CommercialRegistrationV3': 4, 'CompaniesContracts': 4, 'Etikal': 4,
+      'Makanak': 3, 'Maroof': 3,       'Bayyin': 4, 'Commercial Registration': 4, 'CommercialRegistrationV3': 4, 'CompaniesContracts': 4, 'Discounts': 4, 'Etikal': 4,
       'Franchise': 4, 'GACA ILBZ Company Establishment Platform': 4, 'NCFB': 4, 'ROSHN Marketplace': 4, 'SILZ': 4, 'Sijillaty': 4,
       'Sales': 4, 'Trade Mark & IPN': 4, 'Trade Names Mazadat': 4, 'نظام تقييم الامتثال': 4,
       'Brazil COO': 5, 'Certificate of Origin (COO)': 5, 'CertificateOfOrigen': 5, 'Clean Leeds': 5, 'Data Quality': 5,
