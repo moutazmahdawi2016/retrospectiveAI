@@ -426,12 +426,12 @@ function App() {
                   }}
                 >
                   <option value="all">All Portfolios</option>
-                  <option value="1">Products Safety & Logistics (1)</option>
-                  <option value="2">Justice and Urban Development (2)</option>
-                  <option value="3">QoL & PIF (3)</option>
-                  <option value="4">Enterprise Solutions (4)</option>
-                  <option value="5">Mobility & Industrial Tech (5)</option>
-                  <option value="12">Digital Venture (12)</option>
+                  <option value="1">Products Safety & Logistics</option>
+                  <option value="2">Justice and Urban Development</option>
+                  <option value="3">QoL & PIF</option>
+                  <option value="4">Enterprise Solutions</option>
+                  <option value="5">Mobility & Industrial Tech</option>
+                  <option value="12">Digital Venture</option>
                   <option value="null">Uncategorized</option>
                 </select>
               </div>
