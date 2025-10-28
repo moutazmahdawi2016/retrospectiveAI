@@ -8,6 +8,7 @@ console.log('AZURE_DEVOPS_PAT length:', process.env.AZURE_DEVOPS_PAT ? process.e
 console.log('AZURE_DEVOPS_ORG:', process.env.AZURE_DEVOPS_ORG);
 console.log('AZURE_DEVOPS_API_VERSION:', process.env.AZURE_DEVOPS_API_VERSION);
 console.log('AZURE_DEVOPS_BASE_URL:', process.env.AZURE_DEVOPS_BASE_URL);
+console.log('SECURITY_KEY:', process.env.SECURITY_KEY ? 'SET (hidden)' : 'NOT SET - using default');
 
 module.exports = {
   azureDevOps: {
@@ -22,5 +23,8 @@ module.exports = {
   },
   server: {
     port: process.env.PORT || 8000
+  },
+  security: {
+    accessKey: process.env.SECURITY_KEY || 'default-secret-key'
   }
 };

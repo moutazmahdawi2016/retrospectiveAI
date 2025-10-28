@@ -6,6 +6,8 @@ const config = require('./config');
 
 const app = express();
 
+let db = null; // Will be initialized if database packages are installed
+
 // Middleware
 app.use(helmet()); // Security headers
 app.use(cors()); // CORS protection
@@ -68,6 +70,39 @@ const createAzureDevOpsHeaders = () => {
 // Routes
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is running' });
+});
+
+// Security key verification endpoint
+app.post('/api/auth/verify-key', (req, res) => {
+  try {
+    const { key } = req.body;
+    
+    if (!key) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Security key is required' 
+      });
+    }
+
+    const validKey = config.security.accessKey;
+    
+    if (key === validKey) {
+      res.json({ 
+        success: true, 
+        message: 'Access granted' 
+      });
+    } else {
+      res.status(401).json({ 
+        success: false, 
+        error: 'Invalid security key' 
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      error: 'Key verification failed' 
+    });
+  }
 });
 
 // Get all projects from Azure DevOps

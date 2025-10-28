@@ -124,3 +124,9 @@ Thumbs.db
 # Build outputs
 build/
 dist/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+server/users.db

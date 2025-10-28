@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ArrowRight,
   Zap,
@@ -11,11 +11,38 @@ import {
   ExternalLink,
   ChevronDown,
   Menu,
-  X
+  X,
+  Lock,
+  AlertCircle
 } from 'lucide-react';
+import axios from 'axios';
 
 function LandingPage({ onGetStarted }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showKeyModal, setShowKeyModal] = useState(true);
+  const [securityKey, setSecurityKey] = useState('');
+  const [keyError, setKeyError] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+
+  const handleKeySubmit = async (e) => {
+    e.preventDefault();
+    setKeyError('');
+    setIsVerifying(true);
+
+    try {
+      const response = await axios.post('/api/auth/verify-key', { key: securityKey });
+      
+      if (response.data.success) {
+        // Store verification in sessionStorage
+        sessionStorage.setItem('security_verified', 'true');
+        setShowKeyModal(false);
+      }
+    } catch (error) {
+      setKeyError(error.response?.data?.error || 'Invalid security key. Please try again.');
+    } finally {
+      setIsVerifying(false);
+    }
+  };
 
   const features = [
     {
@@ -40,8 +67,64 @@ function LandingPage({ onGetStarted }) {
     }
   ];
 
+  // Check if already verified
+  useEffect(() => {
+    const isVerified = sessionStorage.getItem('security_verified') === 'true';
+    if (isVerified) {
+      setShowKeyModal(false);
+    }
+  }, []);
+
   return (
     <div className="landing-page">
+      {/* Security Key Modal */}
+      {showKeyModal && (
+        <div className="key-modal-overlay">
+          <div className="key-modal">
+            <div className="key-modal-header">
+              <div className="key-modal-icon">
+                <Lock size={32} />
+              </div>
+              <h2 className="key-modal-title">Security Access Required</h2>
+              <p className="key-modal-subtitle">Please enter the security key to access the system</p>
+            </div>
+
+            {keyError && (
+              <div className="key-error-message">
+                <AlertCircle size={16} />
+                <span>{keyError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleKeySubmit} className="key-modal-form">
+              <div className="key-input-group">
+                <label htmlFor="securityKey">
+                  <Lock size={18} />
+                  Security Key
+                </label>
+                <input
+                  type="password"
+                  id="securityKey"
+                  value={securityKey}
+                  onChange={(e) => setSecurityKey(e.target.value)}
+                  placeholder="Enter access key"
+                  required
+                  autoFocus
+                />
+              </div>
+
+              <button 
+                type="submit" 
+                className="key-submit-button"
+                disabled={isVerifying}
+              >
+                {isVerifying ? 'Verifying...' : 'Access System'}
+                <ArrowRight size={16} />
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
       {/* Navigation */}
       <nav className="landing-nav">
         <div className="nav-container">

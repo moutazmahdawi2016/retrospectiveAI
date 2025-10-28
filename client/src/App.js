@@ -217,7 +217,7 @@ function App() {
   console.log('Loading state:', loading);
   console.log('Error state:', error);
 
-  // If we're viewing landing page, show that component
+  // If we're viewing landing page, show that component (accessible without login)
   if (currentView === 'landing') {
     return <LandingPage onGetStarted={handleGetStarted} />;
   }

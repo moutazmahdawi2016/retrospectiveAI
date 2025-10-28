@@ -16,6 +16,13 @@ Write-Host "   Get your API key from: https://platform.deepseek.com/" -Foregroun
 $deepSeekAPIKey = Read-Host "Enter your DeepSeek API Key" -AsSecureString
 $deepSeekAPIKeyPlain = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($deepSeekAPIKey))
 
+# Prompt for Security Key
+Write-Host "`n3. Security Access Key" -ForegroundColor Yellow
+Write-Host "   This key will be required to access the application" -ForegroundColor Gray
+Write-Host "   Choose a strong, secure key (minimum 8 characters recommended)" -ForegroundColor Gray
+$securityKey = Read-Host "Enter your security access key" -AsSecureString
+$securityKeyPlain = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($securityKey))
+
 # Set environment variables
 $env:AZURE_DEVOPS_PAT = $azureDevOpsPATPlain
 $env:AZURE_DEVOPS_ORG = "ThiqahDev"
@@ -24,10 +31,12 @@ $env:AZURE_DEVOPS_BASE_URL = "https://dev.azure.com"
 $env:DEEPSEEK_API_KEY = $deepSeekAPIKeyPlain
 $env:DEEPSEEK_BASE_URL = "https://api.deepseek.com"
 $env:PORT = "5000"
+$env:SECURITY_KEY = $securityKeyPlain
 
 # Clear sensitive variables from memory
 $azureDevOpsPATPlain = $null
 $deepSeekAPIKeyPlain = $null
+$securityKeyPlain = $null
 
 Write-Host "`n✅ Environment variables set successfully!" -ForegroundColor Green
 Write-Host "`nCurrent configuration:" -ForegroundColor Yellow
@@ -37,9 +46,11 @@ Write-Host "AZURE_DEVOPS_BASE_URL: $($env:AZURE_DEVOPS_BASE_URL)" -ForegroundCol
 Write-Host "PORT: $($env:PORT)" -ForegroundColor Cyan
 Write-Host "AZURE_DEVOPS_PAT: [HIDDEN]" -ForegroundColor Cyan
 Write-Host "DEEPSEEK_API_KEY: [HIDDEN]" -ForegroundColor Cyan
+Write-Host "SECURITY_KEY: [HIDDEN]" -ForegroundColor Cyan
 
 Write-Host "`n🚀 You can now start the application with: npm run dev" -ForegroundColor Green
 Write-Host "`n⚠️  Note: These environment variables are only set for the current session." -ForegroundColor Yellow
 Write-Host "   To set them permanently, run this script as Administrator and add:" -ForegroundColor Gray
 Write-Host "   [Environment]::SetEnvironmentVariable('AZURE_DEVOPS_PAT', '[your-pat]', 'User')" -ForegroundColor Gray
 Write-Host "   [Environment]::SetEnvironmentVariable('DEEPSEEK_API_KEY', '[your-key]', 'User')" -ForegroundColor Gray
+Write-Host "   [Environment]::SetEnvironmentVariable('SECURITY_KEY', '[your-security-key]', 'User')" -ForegroundColor Gray

@@ -15,6 +15,7 @@ $env:AZURE_DEVOPS_BASE_URL = "https://dev.azure.com"
 $env:DEEPSEEK_API_KEY = "YOUR_DEEPSEEK_API_KEY_HERE"
 $env:DEEPSEEK_BASE_URL = "https://api.deepseek.com"
 $env:PORT = "5000"
+$env:SECURITY_KEY = "test@123456"
 
 Write-Host "Environment variables set for current session:" -ForegroundColor Yellow
 Write-Host "AZURE_DEVOPS_PAT: $($env:AZURE_DEVOPS_PAT)" -ForegroundColor Cyan
@@ -23,10 +24,11 @@ Write-Host "AZURE_DEVOPS_API_VERSION: $($env:AZURE_DEVOPS_API_VERSION)" -Foregro
 Write-Host "AZURE_DEVOPS_BASE_URL: $($env:AZURE_DEVOPS_BASE_URL)" -ForegroundColor Cyan
 Write-Host "PORT: $($env:PORT)" -ForegroundColor Cyan
 
-Write-Host "`n⚠️  IMPORTANT: You need to replace the placeholder API keys with your actual keys!" -ForegroundColor Red
+Write-Host "`n⚠️  IMPORTANT: You need to replace the placeholder values with your actual keys!" -ForegroundColor Red
 Write-Host "1. Edit this script and replace 'YOUR_AZURE_DEVOPS_PAT_HERE' with your actual Azure DevOps PAT" -ForegroundColor Yellow
 Write-Host "2. Replace 'YOUR_DEEPSEEK_API_KEY_HERE' with your actual DeepSeek API key" -ForegroundColor Yellow
-Write-Host "3. Run this script again after updating the keys" -ForegroundColor Yellow
+Write-Host "3. Replace 'YOUR_SECURITY_KEY_HERE' with your secure access key (e.g., a strong password)" -ForegroundColor Yellow
+Write-Host "4. Run this script again after updating the keys" -ForegroundColor Yellow
 
 Write-Host "`nTo set these permanently (optional), run as Administrator:" -ForegroundColor Yellow
 Write-Host "[Environment]::SetEnvironmentVariable('AZURE_DEVOPS_PAT', '$($env:AZURE_DEVOPS_PAT)', 'User')" -ForegroundColor Gray
