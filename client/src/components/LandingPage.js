@@ -32,8 +32,9 @@ function LandingPage({ onGetStarted }) {
     try {
       const response = await axios.post('/api/auth/verify-key', { key: securityKey });
       
-      if (response.data.success) {
-        // Store verification in sessionStorage
+      if (response.data.success && response.data.token) {
+        // Store the security token in sessionStorage
+        sessionStorage.setItem('security_token', response.data.token);
         sessionStorage.setItem('security_verified', 'true');
         setShowKeyModal(false);
       }
@@ -67,11 +68,19 @@ function LandingPage({ onGetStarted }) {
     }
   ];
 
-  // Check if already verified
+  // Check if already verified and has valid token
   useEffect(() => {
+    const securityToken = sessionStorage.getItem('security_token');
     const isVerified = sessionStorage.getItem('security_verified') === 'true';
-    if (isVerified) {
+    
+    // If no token exists, show modal even if verified flag is set
+    if (securityToken && isVerified) {
       setShowKeyModal(false);
+    } else {
+      // Clear invalid state
+      sessionStorage.removeItem('security_token');
+      sessionStorage.removeItem('security_verified');
+      setShowKeyModal(true);
     }
   }, []);
 

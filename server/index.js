@@ -8,6 +8,11 @@ const app = express();
 
 let db = null; // Will be initialized if database packages are installed
 
+// Security token storage (in-memory, will reset on server restart)
+// In production, consider using Redis or database
+const verifiedSessions = new Map(); // Map of sessionId -> { verified: true, timestamp }
+const SESSION_TIMEOUT = 24 * 60 * 60 * 1000; // 24 hours
+
 // Middleware
 app.use(helmet()); // Security headers
 app.use(cors()); // CORS protection
@@ -58,6 +63,60 @@ const validateProjectName = (projectName) => {
   return /^[a-zA-Z0-9\s._-]+$/.test(projectName) && projectName.length <= 200;
 };
 
+// Security middleware to protect API routes
+const requireSecurityKey = (req, res, next) => {
+  // Allow health check without authentication
+  if (req.originalUrl === '/api/health' || req.path === '/health') {
+    return next();
+  }
+  
+  // Allow key verification endpoint without authentication
+  if ((req.originalUrl === '/api/auth/verify-key' || req.path === '/auth/verify-key') && req.method === 'POST') {
+    return next();
+  }
+
+  // Check for security token in header (support both X-Security-Token and Authorization Bearer)
+  const securityToken = req.headers['x-security-token'] || 
+                       req.headers['authorization']?.replace('Bearer ', '');
+  
+  if (!securityToken) {
+    return res.status(401).json({
+      success: false,
+      error: 'Security key required. Please verify your access key first.',
+      requiresKey: true
+    });
+  }
+
+  // Verify token exists and is valid
+  const session = verifiedSessions.get(securityToken);
+  
+  if (!session) {
+    return res.status(401).json({
+      success: false,
+      error: 'Invalid or expired security token. Please verify your access key again.',
+      requiresKey: true
+    });
+  }
+
+  // Check if session has expired
+  const now = Date.now();
+  if (now - session.timestamp > SESSION_TIMEOUT) {
+    verifiedSessions.delete(securityToken);
+    return res.status(401).json({
+      success: false,
+      error: 'Security token has expired. Please verify your access key again.',
+      requiresKey: true
+    });
+  }
+
+  // Update last access time
+  session.timestamp = now;
+  next();
+};
+
+// Apply security middleware to all API routes
+app.use('/api', requireSecurityKey);
+
 // Azure DevOps API helper function
 const createAzureDevOpsHeaders = () => {
   const credentials = Buffer.from(`:${config.azureDevOps.pat}`).toString('base64');
@@ -67,12 +126,12 @@ const createAzureDevOpsHeaders = () => {
   };
 };
 
-// Routes
+// Routes - Health check (not protected)
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is running' });
 });
 
-// Security key verification endpoint
+// Security key verification endpoint (not protected, but must come before middleware)
 app.post('/api/auth/verify-key', (req, res) => {
   try {
     const { key } = req.body;
@@ -87,9 +146,19 @@ app.post('/api/auth/verify-key', (req, res) => {
     const validKey = config.security.accessKey;
     
     if (key === validKey) {
+      // Generate a secure session token
+      const sessionToken = require('crypto').randomBytes(32).toString('hex');
+      
+      // Store verified session
+      verifiedSessions.set(sessionToken, {
+        verified: true,
+        timestamp: Date.now()
+      });
+      
       res.json({ 
         success: true, 
-        message: 'Access granted' 
+        message: 'Access granted',
+        token: sessionToken
       });
     } else {
       res.status(401).json({ 
